@@ -14,13 +14,13 @@ public class DifferentialDrive {
     // All units must be SI!
 
     // Equivalent mass when accelerating purely linearly, in kg.
-    // This is "equivalent" in that it also absorbs the effects of drivetrain inertia.
-    // Measure by doing drivetrain acceleration characterization in a straight line.
+    // This is "equivalent" in that it also absorbs the effects of diffdrive inertia.
+    // Measure by doing diffdrive acceleration characterization in a straight line.
     protected final double mass_;
 
     // Equivalent moment of inertia when accelerating purely angularly, in kg*m^2.
-    // This is "equivalent" in that it also absorbs the effects of drivetrain inertia.
-    // Measure by doing drivetrain acceleration characterization while turning in place.
+    // This is "equivalent" in that it also absorbs the effects of diffdrive inertia.
+    // Measure by doing diffdrive acceleration characterization while turning in place.
     protected final double moi_;
 
     // Drag torque (proportional to angular velocity) that resists turning, in N*m/rad/s
@@ -366,7 +366,7 @@ public class DifferentialDrive {
         }
     }
 
-    // Full state dynamics of the drivetrain.
+    // Full state dynamics of the diffdrive.
     // TODO maybe make these all optional fields and have a single solveDynamics() method that fills in the blanks?
     public static class DriveDynamics implements CSVWritable {
         public double curvature = 0.0;  // m^-1

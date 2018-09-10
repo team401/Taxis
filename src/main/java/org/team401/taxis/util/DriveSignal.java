@@ -1,7 +1,7 @@
 package org.team401.taxis.util;
 
 /**
- * A drivetrain command consisting of the left, right motor settings and whether the brake mode is enabled.
+ * A diffdrive command consisting of the left, right motor settings and whether the brake mode is enabled.
  */
 public class DriveSignal {
     protected double mLeftMotor;
