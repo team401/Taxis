@@ -13,7 +13,7 @@ import org.team401.taxis.trajectory.timing.TimedState
  * Reference implementation of the PathController interface, just does nothing
  */
 class NoOpPathController: PathController {
-    override fun update(dt: Double, model: DifferentialDrive, trajectory: TrajectoryIterator<TimedState<Pose2dWithCurvature>>, setpoint: TimedState<Pose2dWithCurvature>, error: Pose2d, reversed: Boolean): Output {
+    override fun update(dt: Double, dynamics: DifferentialDrive.DriveDynamics, currentState: Pose2d, model: DifferentialDrive, trajectory: TrajectoryIterator<TimedState<Pose2dWithCurvature>>, setpoint: TimedState<Pose2dWithCurvature>, error: Pose2d, reversed: Boolean): Output {
         return Output()
     }
 }

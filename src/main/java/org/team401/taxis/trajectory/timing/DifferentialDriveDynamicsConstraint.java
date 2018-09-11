@@ -1,3 +1,5 @@
+//File originally from FRC Team 254's 2018 Robot code
+
 package org.team401.taxis.trajectory.timing;
 
 import org.team401.taxis.geometry.ICurvature;

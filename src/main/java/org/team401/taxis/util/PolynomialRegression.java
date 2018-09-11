@@ -1,3 +1,5 @@
+//File originally from FRC Team 254's 2018 Robot code
+
 // NOTE: This file is available at http://algs4.cs.princeton.edu/14analysis/PolynomialRegression.java.html
 package org.team401.taxis.util;
 

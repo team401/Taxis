@@ -34,6 +34,8 @@ interface PathController {
      * @return The output signal to send to the drive
      */
     fun update(dt: Double,
+               dynamics: DifferentialDrive.DriveDynamics,
+               currentState: Pose2d,
                model: DifferentialDrive,
                trajectory: TrajectoryIterator<TimedState<Pose2dWithCurvature>>,
                setpoint: TimedState<Pose2dWithCurvature>,

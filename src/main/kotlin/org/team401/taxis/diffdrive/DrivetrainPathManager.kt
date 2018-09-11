@@ -201,6 +201,8 @@ class DrivetrainPathManager(val geometryConfig: DriveGeometryTemplate,
             error = currentState.inverse().transformBy(setpoint.state().pose)
             output = controller.update(
                     dt,
+                    dynamics,
+                    currentState,
                     model,
                     currentTrajectory,
                     setpoint,
