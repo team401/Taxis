@@ -1,11 +1,11 @@
 package org.team401.taxis.diffdrive
 
+import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.units.LinearDistanceUnit
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
 import org.team401.taxis.template.DriveDynamicsTemplate
-import org.team401.taxis.template.DriveGeometryTemplate
 
 /**
  * @author Cameron Earle
@@ -13,14 +13,14 @@ import org.team401.taxis.template.DriveGeometryTemplate
  *
  * A kinematics model for a robot
  */
-class Kinematics(val geometryConfig: DriveGeometryTemplate, val dynamicsConfig: DriveDynamicsTemplate) {
+class Kinematics(val drivetrain: TankDrivetrain, val dynamicsConfig: DriveDynamicsTemplate) {
     companion object {
         private const val kEpsilon = 1e-9
     }
 
     fun forwardKinematics(leftWheelDelta: Double, rightWheelDelta: Double): Twist2d {
         val deltaRotation = (rightWheelDelta - leftWheelDelta) /
-                (geometryConfig.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value * dynamicsConfig.trackScrubFactor)
+                (drivetrain.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value * dynamicsConfig.trackScrubFactor)
         return forwardKinematics(leftWheelDelta, rightWheelDelta, deltaRotation)
     }
 

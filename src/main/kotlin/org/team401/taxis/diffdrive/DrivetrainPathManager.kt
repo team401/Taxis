@@ -1,5 +1,6 @@
 package org.team401.taxis.diffdrive
 
+import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.geometry.Pose2d
@@ -8,7 +9,6 @@ import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
 import org.team401.taxis.template.DriveDynamicsTemplate
-import org.team401.taxis.template.DriveGeometryTemplate
 import org.team401.taxis.template.PathFollowingTemplate
 import org.team401.taxis.trajectory.*
 import org.team401.taxis.trajectory.timing.DifferentialDriveDynamicsConstraint
@@ -30,15 +30,15 @@ import org.team401.taxis.util.Util
  * @param pathFollowingConfig The path following data
  * @param controller The drive controller to use
  */
-class DrivetrainPathManager(val geometryConfig: DriveGeometryTemplate,
+class DrivetrainPathManager(val drivetrain: TankDrivetrain,
                             val dynamicsConfig: DriveDynamicsTemplate,
                             val pathFollowingConfig: PathFollowingTemplate,
                             val controller: PathController) {
 
     private val motorModel = DCMotorTransmission(
             1.0 / dynamicsConfig.kV,
-            (geometryConfig.wheelDiameter.toUnit(LinearDistanceUnit.Standard.METERS).value / 2.0) *
-                    (geometryConfig.wheelDiameter.toUnit(LinearDistanceUnit.Standard.METERS).value / 2.0) *
+            (drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                    (drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
                     dynamicsConfig.inertialMass / (2.0 * dynamicsConfig.kA),
             dynamicsConfig.kV
     )
@@ -50,10 +50,10 @@ class DrivetrainPathManager(val geometryConfig: DriveGeometryTemplate,
             dynamicsConfig.inertialMass,
             dynamicsConfig.momentOfInertia,
             dynamicsConfig.angularDrag,
-            geometryConfig.wheelDiameter.toUnit(LinearDistanceUnit.Standard.METERS).value / 2.0,
+            drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
             LinearDistanceMeasureInches(
-                    geometryConfig.wheelDiameter.toUnit(LinearDistanceUnit.Standard.INCHES).value
-                            / 2.0 * dynamicsConfig.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value,
+                    drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.INCHES).value
+                            * dynamicsConfig.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value, //TODO check math after removing radius conversion
             motorModel,
             motorModel
     )
