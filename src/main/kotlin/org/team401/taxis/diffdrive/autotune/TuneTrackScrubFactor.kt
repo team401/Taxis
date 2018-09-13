@@ -39,6 +39,7 @@ class TuneTrackScrubFactor(val drivetrain: TankDrivetrain, turns: Int = 10, powe
             println("Empirical Trackwidth (Inches): $trackWidth")
             println("Track Scrub Factor: ${drivetrain.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value / trackWidth}")
 
+            drivetrain.stop()
             return true
         }
         return false
