@@ -26,9 +26,9 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "org.snakeskin:SnakeSkin-Core:2.0b7"
-    implementation "org.snakeskin:SnakeSkin-FRC:2.0b7"
-    implementation "org.snakeskin:SnakeSkin-CTRE:2.0b7"
+    implementation "org.snakeskin:SnakeSkin-Core:2.0b9"
+    implementation "org.snakeskin:SnakeSkin-FRC:2.0b9"
+    implementation "org.snakeskin:SnakeSkin-CTRE:2.0b9"
 
     implementation "openrio.mirror.third.ctre:CTRE-phoenix-java:5.3.1.0"
 

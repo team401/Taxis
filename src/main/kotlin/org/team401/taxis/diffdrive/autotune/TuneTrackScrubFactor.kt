@@ -26,7 +26,7 @@ class TuneTrackScrubFactor(val drivetrain: TankDrivetrain, turns: Int = 10, powe
         drivetrain.right.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
     }
 
-    override fun action(currentTime: Double, lastTime: Double) {
+    override fun action(currentTime: Double, lastTime: Double): Boolean {
         drivetrain.tank(ControlMode.PercentOutput, turnPower, -turnPower)
         val yaw = Math.abs(drivetrain.getYaw().toUnit(AngularDistanceUnit.Standard.RADIANS).value)
         if (yaw >= turnRadians) {
@@ -39,8 +39,9 @@ class TuneTrackScrubFactor(val drivetrain: TankDrivetrain, turns: Int = 10, powe
             println("Empirical Trackwidth (Inches): $trackWidth")
             println("Track Scrub Factor: ${drivetrain.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value / trackWidth}")
 
-            done = true
+            return true
         }
+        return false
     }
 
     override fun exit(currentTime: Double) {
