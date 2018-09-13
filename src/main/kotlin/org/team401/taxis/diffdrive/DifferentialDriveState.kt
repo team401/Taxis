@@ -1,7 +1,9 @@
 package org.team401.taxis.diffdrive
 
 import org.snakeskin.component.TankDrivetrain
+import org.snakeskin.hardware.Hardware
 import org.snakeskin.units.Degrees
+import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureCTREMagEncoder
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
@@ -20,7 +22,7 @@ class DifferentialDriveState(val observationBufferSize: Int = 100, val drive: Ta
     private var distanceDriven = 0.0
 
     init {
-
+        reset(Hardware.getRelativeTime(), Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)))
     }
 
     @Synchronized fun reset(startTime: Double, initialFieldToVehicle: Pose2d) {
@@ -28,6 +30,8 @@ class DifferentialDriveState(val observationBufferSize: Int = 100, val drive: Ta
         fieldToVehicle[InterpolatingDouble(startTime)] = initialFieldToVehicle
         //TODO switch the drivetrain system to use fused heading
         drive.setYaw(initialFieldToVehicle.rotation.degrees.Degrees)
+        drive.left.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
+        drive.right.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
         vehicleVelocityPredicted = Twist2d.identity()
         vehicleVelocityMeasured = Twist2d.identity()
         distanceDriven = 0.0
