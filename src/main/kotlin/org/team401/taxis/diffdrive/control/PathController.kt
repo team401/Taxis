@@ -1,5 +1,6 @@
-package org.team401.taxis.diffdrive
+package org.team401.taxis.diffdrive.control
 
+import org.team401.taxis.diffdrive.control.Output
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Pose2dWithCurvature
 import org.team401.taxis.physics.DifferentialDrive
@@ -23,7 +24,7 @@ interface PathController {
      * The following parameters will be provided:
      *
      * @param dt The delta time, in seconds
-     * @param model The model of the differential drivetrain
+     * @param model The control of the differential drivetrain
      * @param trajectory The current trajectory
      * @param setpoint The current setpoint of the trajectory
      * @param error The current error from the setpoint

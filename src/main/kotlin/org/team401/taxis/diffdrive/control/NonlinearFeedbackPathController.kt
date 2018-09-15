@@ -1,4 +1,4 @@
-package org.team401.taxis.diffdrive
+package org.team401.taxis.diffdrive.control
 
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Pose2dWithCurvature

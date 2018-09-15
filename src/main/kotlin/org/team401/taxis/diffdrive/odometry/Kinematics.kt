@@ -1,7 +1,8 @@
-package org.team401.taxis.diffdrive
+package org.team401.taxis.diffdrive.odometry
 
 import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.units.LinearDistanceUnit
+import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
@@ -13,14 +14,14 @@ import org.team401.taxis.template.DriveDynamicsTemplate
  *
  * A kinematics model for a robot
  */
-class Kinematics(val drivetrain: TankDrivetrain, val dynamicsConfig: DriveDynamicsTemplate) {
+class Kinematics(private val wheelbase: LinearDistanceMeasure, private val trackScrubFactor: Double) {
     companion object {
         private const val kEpsilon = 1e-9
     }
 
     fun forwardKinematics(leftWheelDelta: Double, rightWheelDelta: Double): Twist2d {
         val deltaRotation = (rightWheelDelta - leftWheelDelta) /
-                (drivetrain.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value * dynamicsConfig.trackScrubFactor)
+                (wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value * trackScrubFactor)
         return forwardKinematics(leftWheelDelta, rightWheelDelta, deltaRotation)
     }
 

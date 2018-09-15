@@ -1,14 +1,10 @@
-package org.team401.taxis.diffdrive
+package org.team401.taxis.diffdrive.control
 
-import org.snakeskin.component.TankDrivetrain
-import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
+import org.team401.taxis.diffdrive.Path
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Pose2dWithCurvature
 import org.team401.taxis.geometry.Rotation2d
-import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
-import org.team401.taxis.template.DriveDynamicsTemplate
 import org.team401.taxis.template.PathFollowingTemplate
 import org.team401.taxis.trajectory.*
 import org.team401.taxis.trajectory.timing.DifferentialDriveDynamicsConstraint
@@ -25,38 +21,13 @@ import org.team401.taxis.util.Util
  * Manages path following for a drivetrain.  This class does not interact with any hardware,
  * and instead must be provided with the inputs by calling appropriate functions.
  *
- * @param geometryConfig The geometry data
- * @param dynamicsConfig The dynamics data
+ * @param dynamicsModel The dynamics model of the drivetrain
  * @param pathFollowingConfig The path following data
  * @param controller The drive controller to use
  */
-class DrivetrainPathManager(val drivetrain: TankDrivetrain,
-                            val dynamicsConfig: DriveDynamicsTemplate,
-                            val pathFollowingConfig: PathFollowingTemplate,
-                            val controller: PathController) {
-
-    private val motorModel = DCMotorTransmission(
-            1.0 / dynamicsConfig.kV,
-            (drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                    (drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                    dynamicsConfig.inertialMass / (2.0 * dynamicsConfig.kA),
-            dynamicsConfig.kV
-    )
-
-    /**
-     * The constructed drivetrain model, made public for possible future use
-     */
-    val model = DifferentialDrive(
-            dynamicsConfig.inertialMass,
-            dynamicsConfig.momentOfInertia,
-            dynamicsConfig.angularDrag,
-            drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
-            LinearDistanceMeasureInches(
-                    drivetrain.wheelRadius.toUnit(LinearDistanceUnit.Standard.INCHES).value
-                            * dynamicsConfig.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value, //TODO check math after removing radius conversion
-            motorModel,
-            motorModel
-    )
+class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
+                            private val pathFollowingConfig: PathFollowingTemplate,
+                            private val controller: PathController) {
 
     private val trajectories = hashMapOf<String, Trajectory<TimedState<Pose2dWithCurvature>>>()
 
@@ -112,7 +83,7 @@ class DrivetrainPathManager(val drivetrain: TankDrivetrain,
             trajectory = Trajectory(flipped)
         }
 
-        val driveConstraints = DifferentialDriveDynamicsConstraint<Pose2dWithCurvature>(model, path.maxVoltage)
+        val driveConstraints = DifferentialDriveDynamicsConstraint<Pose2dWithCurvature>(dynamicsModel, path.maxVoltage)
         val allConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>()
         allConstraints.add(driveConstraints)
         allConstraints.addAll(path.constraints)
@@ -193,7 +164,7 @@ class DrivetrainPathManager(val drivetrain: TankDrivetrain,
             val curvatureM = Units.meters_to_inches(setpoint.state().curvature)
             val dCurvatureDsM = Units.meters_to_inches(Units.meters_to_inches(setpoint.state().dCurvatureDs))
             val accelerationM = Units.inches_to_meters(setpoint.acceleration())
-            val dynamics = model.solveInverseDynamics(
+            val dynamics = dynamicsModel.solveInverseDynamics(
                     DifferentialDrive.ChassisState(velocityM, velocityM * curvatureM),
                     DifferentialDrive.ChassisState(accelerationM,
                             accelerationM * curvatureM + velocityM * velocityM * dCurvatureDsM)
@@ -203,7 +174,7 @@ class DrivetrainPathManager(val drivetrain: TankDrivetrain,
                     dt,
                     dynamics,
                     currentState,
-                    model,
+                    dynamicsModel,
                     currentTrajectory,
                     setpoint,
                     error,

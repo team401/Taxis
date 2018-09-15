@@ -1,4 +1,4 @@
-package org.team401.taxis.diffdrive
+package org.team401.taxis.diffdrive.control
 
 /**
  * @author Cameron Earle
