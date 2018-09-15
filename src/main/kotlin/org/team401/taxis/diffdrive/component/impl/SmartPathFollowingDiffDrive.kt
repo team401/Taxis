@@ -42,7 +42,7 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
             (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
                     (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
                     dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.kA),
-            dynamicsTemplate.kV
+            dynamicsTemplate.kS
     )
     
     override val dynamicsModel = DifferentialDrive(
