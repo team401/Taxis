@@ -5,12 +5,15 @@ import org.snakeskin.auto.steps.DelayStep
 import org.snakeskin.auto.steps.LambdaStep
 import org.snakeskin.auto.steps.SequentialSteps
 import org.snakeskin.component.TankDrivetrain
+import org.snakeskin.hardware.Hardware
 import org.snakeskin.units.measure.time.TimeMeasure
 import org.snakeskin.units.measure.time.TimeMeasureSeconds
 import org.team401.taxis.diffdrive.autotune.AutotunePhysics
 import org.team401.taxis.diffdrive.autotune.CollectLinearAccelerationData
 import org.team401.taxis.diffdrive.autotune.CollectLinearStictionData
 import org.team401.taxis.physics.DriveCharacterization
+import org.team401.taxis.util.ReflectingCSVWriter
+import java.io.File
 
 /**
  * @author Cameron Earle
@@ -39,14 +42,25 @@ class TuningAutoCharacterizeLinearDynamics(val drivetrain: TankDrivetrain,
                     )
                     val inertialMass = AutotunePhysics.drivetrainInertialMass(
                             driveModel,
-                            collectAcceleration.data.map { it.dp.acceleration }.average(),
-                            collectAcceleration.data.map { it.current }.average(),
-                            collectAcceleration.data.map { it.current }.average()
+                            collectAcceleration.data.filter { it.included }.map { it.dp.acceleration }.average(),
+                            collectAcceleration.data.filter { it.included }.map { it.current }.average(),
+                            collectAcceleration.data.filter { it.included }.map { it.current }.average()
                     )
                     println("kS: ${characterization.ks}")
                     println("kV: ${characterization.kv}")
                     println("kA: ${characterization.ka}")
                     println("Inertial Mass: $inertialMass")
+                    val f = File("/home/lvuser/LinearDynamics-${Hardware.getAbsoluteTime()}.csv")
+                    val printer = f.printWriter()
+                    collectAcceleration.data.forEach {
+                        printer.println(it.toCSV())
+                    }
+                    printer.println("kS: ${characterization.ks}")
+                    printer.println("kV: ${characterization.kv}")
+                    printer.println("kA: ${characterization.ka}")
+                    printer.println("Inertial Mass: $inertialMass")
+                    printer.flush()
+                    printer.close()
                 }
         )
     }

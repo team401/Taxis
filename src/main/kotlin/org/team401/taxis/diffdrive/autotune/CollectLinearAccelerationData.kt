@@ -24,10 +24,14 @@ class CollectLinearAccelerationData(val drivetrain: TankDrivetrain,
     private var prevTime = 0.0
 
     data class AccelerationPacket(val dp: DriveCharacterization.AccelerationDataPoint,
-                                  val current: Double)
+                                  val current: Double,
+                                  val included: Boolean) {
+        fun toCSV(): String {
+            return "${dp.acceleration},${dp.power},${dp.velocity},$current,$included"
+        }
+    }
 
     val data = arrayListOf<AccelerationPacket>()
-    val currentData = arrayListOf<Double>()
 
     override fun entry(currentTime: Double) {
         println("Collecting linear acceleration data")
@@ -54,17 +58,11 @@ class CollectLinearAccelerationData(val drivetrain: TankDrivetrain,
 
         val acceleration = (currentVelocity - prevVelocity) / (currentTime - prevTime)
 
-        if (acceleration < Util.kEpsilon) {
-            prevTime = currentTime
-            prevVelocity = currentVelocity
-            return false //Ignore points under a certain threshold
-        }
-
         data.add(AccelerationPacket(DriveCharacterization.AccelerationDataPoint(
                 currentVelocity,
                 power * 12,
                 acceleration
-        ), avgCurrent))
+        ), avgCurrent, acceleration >= Util.kEpsilon))
 
         prevTime = currentTime
         prevVelocity = currentVelocity
