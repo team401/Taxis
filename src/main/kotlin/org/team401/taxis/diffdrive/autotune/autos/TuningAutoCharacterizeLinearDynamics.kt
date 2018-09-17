@@ -52,9 +52,11 @@ class TuningAutoCharacterizeLinearDynamics(val drivetrain: TankDrivetrain,
                     println("Inertial Mass: $inertialMass")
                     val f = File("/home/lvuser/LinearDynamics-${Hardware.getAbsoluteTime()}.csv")
                     val printer = f.printWriter()
+                    printer.print("Time (s),Acceleration (rad/s/s/),Voltage,Velocity (rad/s),Current,Included")
                     collectAcceleration.data.forEach {
                         printer.println(it.toCSV())
                     }
+                    printer.println()
                     printer.println("kS: ${characterization.ks}")
                     printer.println("kV: ${characterization.kv}")
                     printer.println("kA: ${characterization.ka}")
