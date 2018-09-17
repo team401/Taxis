@@ -67,7 +67,7 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
     /**
      * Resets the pose.  Use this instead of directly resetting driveState to ensure that heading tracks properly.
      */
-    fun resetPose(pose: Pose2d, time: Double = Hardware.getRelativeTime()) {
+    override fun setPose(pose: Pose2d, time: Double) {
         setHeading(pose.rotation)
         driveState.reset(time, pose)
     }
