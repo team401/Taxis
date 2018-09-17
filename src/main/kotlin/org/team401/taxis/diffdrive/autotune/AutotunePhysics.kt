@@ -82,7 +82,7 @@ object AutotunePhysics {
         }
 
         fun linearForce(leftAmps: Double, rightAmps: Double): Double {
-            return (leftTransmissionModel.forceAtGround(leftAmps) + rightTransmissionModel.forceAtGround(rightAmps)) / 2.0
+            return (leftTransmissionModel.forceAtGround(leftAmps) + rightTransmissionModel.forceAtGround(rightAmps))
         }
     }
 
@@ -90,7 +90,8 @@ object AutotunePhysics {
                                averageAcceleration: Double,
                                averageCurrentLeft: Double,
                                averageCurrentRight: Double): Double {
-        return driveModel.linearForce(averageCurrentLeft, averageCurrentRight) / averageAcceleration
+        return driveModel.linearForce(averageCurrentLeft, averageCurrentRight) / (averageAcceleration *
+                ((driveModel.leftTransmissionModel.wheelRadius + driveModel.rightTransmissionModel.wheelRadius) / 2.0))
     }
 
     fun drivetrainMomentOfInertia(driveModel: IdealDiffDriveModel,
