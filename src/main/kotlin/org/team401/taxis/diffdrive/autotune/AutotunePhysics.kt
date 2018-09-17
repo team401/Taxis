@@ -108,7 +108,7 @@ object AutotunePhysics {
                               leftAmps: Double,
                               rightAmps: Double,
                               angularVelocity: Double): Double {
-        return (driveModel.idealTorqueAboutRobot(leftVoltage, leftVelocity, rightVoltage, rightVelocity) -
-                driveModel.torqueAboutRobot(leftAmps, rightAmps)) / angularVelocity
+        return -(driveModel.idealTorqueAboutRobot(leftVoltage, leftVelocity, rightVoltage, rightVelocity) -
+                 driveModel.torqueAboutRobot(leftAmps, rightAmps)) / angularVelocity
     }
 }
