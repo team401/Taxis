@@ -25,7 +25,7 @@ object AutotunePhysics {
             return (voltage - velocity * kV()) / r()
         }
 
-        fun idealTorqueAtMotor(velocity: Double, voltage: Double): Double {
+        fun torqueAtMotor(velocity: Double, voltage: Double): Double {
             return torqueAtMotor(currentAtVelocityAndVoltage(velocity, voltage))
         }
     }
@@ -50,17 +50,17 @@ object AutotunePhysics {
      * All units SI
      */
     data class IdealTransmissionModel(val gearRatio: Double, val numMotors: Int, val motorModel: MotorModel, val wheelRadius: Double) {
-        fun idealTorqueAtAxle(velocityAtAxle: Double, voltage: Double): Double {
+        fun torqueAtAxle(velocityAtAxle: Double, voltage: Double): Double {
             val velocityAtMotor = velocityAtAxle * gearRatio
-            return motorModel.idealTorqueAtMotor(velocityAtMotor, voltage) * gearRatio * numMotors
+            return motorModel.torqueAtMotor(velocityAtMotor, voltage) * gearRatio * numMotors
         }
 
         fun torqueAtAxle(amps: Double): Double {
             return motorModel.torqueAtMotor(amps) * gearRatio * numMotors
         }
 
-        fun idealForceAtGround(velocityAtAxle: Double, voltage: Double): Double {
-            return idealTorqueAtAxle(velocityAtAxle, voltage) / wheelRadius
+        fun forceAtGround(velocityAtAxle: Double, voltage: Double): Double {
+            return torqueAtAxle(velocityAtAxle, voltage) / wheelRadius
         }
 
         fun forceAtGround(amps: Double): Double {
@@ -71,9 +71,9 @@ object AutotunePhysics {
     data class IdealDiffDriveModel(val leftTransmissionModel: IdealTransmissionModel,
                                    val rightTransmissionModel: IdealTransmissionModel,
                                    val wheelbaseRadius: Double) {
-        fun idealTorqueAboutRobot(leftVoltage: Double, leftVelocity: Double, rightVoltage: Double, rightVelocity: Double): Double {
-            return (leftTransmissionModel.idealForceAtGround(leftVelocity, leftVoltage) +
-                    rightTransmissionModel.idealForceAtGround(rightVelocity, rightVoltage)) * wheelbaseRadius
+        fun torqueAboutRobot(leftVoltage: Double, leftVelocity: Double, rightVoltage: Double, rightVelocity: Double): Double {
+            return (leftTransmissionModel.forceAtGround(leftVelocity, leftVoltage) +
+                    rightTransmissionModel.forceAtGround(rightVelocity, rightVoltage)) * wheelbaseRadius
         }
 
         fun torqueAboutRobot(leftAmps: Double, rightAmps: Double): Double {
@@ -108,7 +108,7 @@ object AutotunePhysics {
                               leftAmps: Double,
                               rightAmps: Double,
                               angularVelocity: Double): Double {
-        return -(driveModel.idealTorqueAboutRobot(leftVoltage, leftVelocity, rightVoltage, rightVelocity) -
+        return -(driveModel.torqueAboutRobot(leftVoltage, leftVelocity, rightVoltage, rightVelocity) -
                  driveModel.torqueAboutRobot(leftAmps, rightAmps)) / angularVelocity
     }
 }
