@@ -16,6 +16,7 @@ import org.team401.taxis.diffdrive.control.PathController
 import org.team401.taxis.diffdrive.odometry.DifferentialDriveState
 import org.team401.taxis.diffdrive.odometry.Kinematics
 import org.team401.taxis.geometry.Pose2d
+import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
 import org.team401.taxis.template.DriveDynamicsTemplate
@@ -67,10 +68,25 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
      * Resets the pose.  Use this instead of directly resetting driveState to ensure that heading tracks properly.
      */
     fun resetPose(pose: Pose2d, time: Double = Hardware.getRelativeTime()) {
-        //TODO change the drivetrain class (or maybe directly in the robot state?) to track heading itself to use the compass heading
-        setYaw(AngularDistanceMeasureDegrees(pose.rotation.degrees)) //TODO This apparently takes a lot of time to finish? So we need to stop using this
-        left.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0)) //We don't technically have to do this, since the pose estimator just tracks delta, but it can't hurt
-        right.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
+        setHeading(pose.rotation)
         driveState.reset(time, pose)
+    }
+
+    private var gyroOffset = Rotation2d.identity() //The offset to use when getting the heading
+
+    /**
+     * Gets the heading of the drive from the compass.  This is more accurate than the getYaw method.
+     * This also uses a robot controller side heading offset, which avoids the issue of the IMU taking a long time to set the yaw
+     * The heading is returned as a Rotation2d to make it easy to use with other parts of this library
+     */
+    override fun getHeading(): Rotation2d {
+        return Rotation2d.fromDegrees(imu.fusedHeading).rotateBy(gyroOffset)
+    }
+
+    /**
+     * Marks the input heading as the current heading of the robot
+     */
+    override fun setHeading(heading: Rotation2d) {
+        gyroOffset = heading.rotateBy(Rotation2d.fromDegrees(imu.fusedHeading).inverse())
     }
 }

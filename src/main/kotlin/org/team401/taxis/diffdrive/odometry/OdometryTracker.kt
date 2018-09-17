@@ -35,7 +35,7 @@ class OdometryTracker(private val drivetrain: PathFollowingDiffDrive): RealTimeT
     }
 
     private fun getGyroHeading(): Rotation2d {
-        return Rotation2d.fromDegrees(drivetrain.getYaw().toUnit(AngularDistanceUnit.Standard.DEGREES).value)
+        return drivetrain.getHeading()
     }
 
 

@@ -37,7 +37,7 @@ interface DriveDynamicsTemplate {
     val angularDrag: Double
 
     /**
-     * (geometric wheelbase)/(effective wheelbase)
+     * (effective wheelbase) / (geometric wheelbase).  Units do not matter as long as they are the same
      */
     val trackScrubFactor: Double
 }
