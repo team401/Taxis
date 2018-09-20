@@ -1,5 +1,6 @@
 package org.team401.taxis.diffdrive.autotune
 
+import com.ctre.phoenix.motorcontrol.ControlMode
 import org.snakeskin.auto.steps.AutoStep
 import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.units.TimeUnit
@@ -44,9 +45,9 @@ class CollectLinearAccelerationData(val drive: TankDrivetrain,
     override fun action(currentTime: Double, lastTime: Double): Boolean {
         if (currentTime - startTime > timeSeconds) {
             //We are done.
-            drive.stop()
             return true
         }
+        drive.arcade(ControlMode.PercentOutput, power, 0.0)
         val currentVelocity = (Math.abs(drive.left.getVelocity().value) + Math.abs(drive.right.getVelocity().value)) / 4096.0 * Math.PI * 10.0
 
         if (prevTime == startTime) {
@@ -78,6 +79,6 @@ class CollectLinearAccelerationData(val drive: TankDrivetrain,
     }
 
     override fun exit(currentTime: Double) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        drive.stop()
     }
 }
