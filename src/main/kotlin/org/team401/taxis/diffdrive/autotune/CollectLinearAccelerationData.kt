@@ -67,7 +67,7 @@ class CollectLinearAccelerationData(val drive: TankDrivetrain,
         }
 
         data.add(TimestampedAccelerationData(
-                currentTime,
+                currentTime - startTime,
                 currentVelocity,
                 power * 12.0,
                 acceleration
