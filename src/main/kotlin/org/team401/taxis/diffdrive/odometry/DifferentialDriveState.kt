@@ -6,13 +6,14 @@ import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
 import org.team401.taxis.util.InterpolatingDouble
 import org.team401.taxis.util.InterpolatingTreeMap
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle
  * @version 9/10/2018
  *
  */
-class DifferentialDriveState(val observationBufferSize: Int = 100, val kinematics: Kinematics) {
+class DifferentialDriveState(val observationBufferSize: Int = 100, var kinematicsRef: AtomicReference<Kinematics>) {
     private lateinit var fieldToVehicle: InterpolatingTreeMap<InterpolatingDouble, Pose2d>
     private lateinit var vehicleVelocityPredicted: Twist2d
     private lateinit var vehicleVelocityMeasured: Twist2d
@@ -52,14 +53,14 @@ class DifferentialDriveState(val observationBufferSize: Int = 100, val kinematic
     }
 
     @Synchronized fun addObservations(timestamp: Double, measuredVelocity: Twist2d, predictedVelocity: Twist2d) {
-        addFieldToVehicleObservation(timestamp, kinematics.integrateForwardKinematics(getLatestFieldToVehicle().value, measuredVelocity))
+        addFieldToVehicleObservation(timestamp, kinematicsRef.get().integrateForwardKinematics(getLatestFieldToVehicle().value, measuredVelocity))
         vehicleVelocityMeasured = measuredVelocity
         vehicleVelocityPredicted = predictedVelocity
     }
 
     @Synchronized fun generateOdometryFromSensors(leftEncoderDeltaDistance: Double, rightEncoderDeltaDistance: Double, currentGyroAngle: Rotation2d): Twist2d {
         val lastMeasurement = getLatestFieldToVehicle().value
-        val delta = kinematics.forwardKinematics(
+        val delta = kinematicsRef.get().forwardKinematics(
                 lastMeasurement.rotation,
                 leftEncoderDeltaDistance, rightEncoderDeltaDistance,
                 currentGyroAngle

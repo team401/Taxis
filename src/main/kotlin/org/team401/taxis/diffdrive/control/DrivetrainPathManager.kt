@@ -1,5 +1,7 @@
 package org.team401.taxis.diffdrive.control
 
+import org.snakeskin.units.AngularDistanceUnit
+import org.snakeskin.units.LinearDistanceUnit
 import org.team401.taxis.diffdrive.Path
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Pose2dWithCurvature
@@ -13,6 +15,7 @@ import org.team401.taxis.trajectory.timing.TimingConstraint
 import org.team401.taxis.trajectory.timing.TimingUtil
 import org.team401.taxis.util.Units
 import org.team401.taxis.util.Util
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle
@@ -25,9 +28,9 @@ import org.team401.taxis.util.Util
  * @param pathFollowingConfig The path following data
  * @param controller The drive controller to use
  */
-class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
-                            private val pathFollowingConfig: PathFollowingTemplate,
-                            private val controller: PathController) {
+class DrivetrainPathManager(private val dynamicsModelRef: AtomicReference<DifferentialDrive>,
+                            private val pathFollowingConfigRef: AtomicReference<PathFollowingConfig>,
+                            var controller: PathController) {
 
     private val trajectories = hashMapOf<String, Trajectory<TimedState<Pose2dWithCurvature>>>()
 
@@ -64,9 +67,9 @@ class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
 
         var trajectory = TrajectoryUtil.trajectoryFromSplineWaypoints(
                 waypoints,
-                pathFollowingConfig.maxErrorX,
-                pathFollowingConfig.maxErrorY,
-                pathFollowingConfig.maxErrorTheta
+                pathFollowingConfigRef.get().maxErrorX.toUnit(LinearDistanceUnit.Standard.INCHES).value,
+                pathFollowingConfigRef.get().maxErrorY.toUnit(LinearDistanceUnit.Standard.INCHES).value,
+                pathFollowingConfigRef.get().maxErrorTheta.toUnit(AngularDistanceUnit.Standard.RADIANS).value
         )
 
         if (reversed) {
@@ -83,7 +86,7 @@ class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
             trajectory = Trajectory(flipped)
         }
 
-        val driveConstraints = DifferentialDriveDynamicsConstraint<Pose2dWithCurvature>(dynamicsModel, path.maxVoltage)
+        val driveConstraints = DifferentialDriveDynamicsConstraint<Pose2dWithCurvature>(dynamicsModelRef.get(), path.maxVoltage)
         val allConstraints = arrayListOf<TimingConstraint<Pose2dWithCurvature>>()
         allConstraints.add(driveConstraints)
         allConstraints.addAll(path.constraints)
@@ -91,7 +94,7 @@ class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
         return TimingUtil.timeParameterizeTrajectory(
                 reversed,
                 DistanceView(trajectory),
-                pathFollowingConfig.maxErrorX,
+                pathFollowingConfigRef.get().maxErrorX.toUnit(LinearDistanceUnit.Standard.INCHES).value,
                 allConstraints,
                 path.startVelocity,
                 path.endVelocity,
@@ -164,7 +167,7 @@ class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
             val curvatureM = Units.meters_to_inches(setpoint.state().curvature)
             val dCurvatureDsM = Units.meters_to_inches(Units.meters_to_inches(setpoint.state().dCurvatureDs))
             val accelerationM = Units.inches_to_meters(setpoint.acceleration())
-            val dynamics = dynamicsModel.solveInverseDynamics(
+            val dynamics = dynamicsModelRef.get().solveInverseDynamics(
                     DifferentialDrive.ChassisState(velocityM, velocityM * curvatureM),
                     DifferentialDrive.ChassisState(accelerationM,
                             accelerationM * curvatureM + velocityM * velocityM * dCurvatureDsM)
@@ -174,7 +177,7 @@ class DrivetrainPathManager(private val dynamicsModel: DifferentialDrive,
                     dt,
                     dynamics,
                     currentState,
-                    dynamicsModel,
+                    dynamicsModelRef.get(),
                     currentTrajectory,
                     setpoint,
                     error,

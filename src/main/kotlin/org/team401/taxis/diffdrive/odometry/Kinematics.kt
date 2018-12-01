@@ -7,6 +7,8 @@ import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
 import org.team401.taxis.template.DriveDynamicsTemplate
+import java.lang.ref.Reference
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle

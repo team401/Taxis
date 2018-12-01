@@ -13,6 +13,7 @@ import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
 import org.team401.taxis.diffdrive.control.PathController
+import org.team401.taxis.diffdrive.control.PathFollowingConfig
 import org.team401.taxis.diffdrive.odometry.DifferentialDriveState
 import org.team401.taxis.diffdrive.odometry.Kinematics
 import org.team401.taxis.geometry.Pose2d
@@ -21,6 +22,7 @@ import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
 import org.team401.taxis.template.DriveDynamicsTemplate
 import org.team401.taxis.template.PathFollowingTemplate
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle
@@ -37,32 +39,54 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                                   imu: PigeonIMU,
                                   pathController: PathController,
                                   driveStateObservationBufferSize: Int = 100): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
+
+    init {
+        updateModel(geometryTemplate, dynamicsTemplate, pathFollowingTemplate)
+    }
+
+    private val motorModelRef = AtomicReference<DCMotorTransmission>()
+    private val dynamicsModelRef = AtomicReference<DifferentialDrive>()
+    private val kinematicsModelRef = AtomicReference<Kinematics>()
+    private val pathFollowingConfigRef = AtomicReference<PathFollowingConfig>()
+
+    override val motorModel: DCMotorTransmission
+    get() = motorModelRef.get()
     
-    override val motorModel = DCMotorTransmission(
-            1.0 / dynamicsTemplate.kV,
-            (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                    (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                    dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.kA),
-            dynamicsTemplate.kS
-    )
-    
-    override val dynamicsModel = DifferentialDrive(
-            dynamicsTemplate.inertialMass,
-            dynamicsTemplate.momentOfInertia,
-            dynamicsTemplate.angularDrag,
-            wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
-            LinearDistanceMeasureInches(
-                    wheelRadius.toUnit(LinearDistanceUnit.Standard.INCHES).value
-                            * dynamicsTemplate.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value, //TODO check math after removing radius conversion
-            motorModel,
-            motorModel
-    )
+    override val dynamicsModel: DifferentialDrive
+    get() = dynamicsModelRef.get()
 
-    override val kinematicsModel = Kinematics(wheelbase, dynamicsTemplate.trackScrubFactor)
+    override val kinematicsModel: Kinematics
+    get() = kinematicsModelRef.get()
 
-    override val driveState = DifferentialDriveState(driveStateObservationBufferSize, kinematicsModel)
+    override val driveState = DifferentialDriveState(driveStateObservationBufferSize, kinematicsModelRef)
 
-    override val pathManager = DrivetrainPathManager(dynamicsModel, pathFollowingTemplate, pathController)
+    override val pathManager = DrivetrainPathManager(dynamicsModelRef, pathFollowingConfigRef, pathController)
+
+    override fun updateModel(geometryTemplate: TankDrivetrainGeometryTemplate, dynamicsTemplate: DriveDynamicsTemplate, pathFollowingTemplate: PathFollowingTemplate) {
+        motorModelRef.set(DCMotorTransmission(
+                1.0 / dynamicsTemplate.kV,
+                (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                        (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                        dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.kA),
+                dynamicsTemplate.kS
+        ))
+
+        dynamicsModelRef.set(DifferentialDrive(
+                dynamicsTemplate.inertialMass,
+                dynamicsTemplate.momentOfInertia,
+                dynamicsTemplate.angularDrag,
+                wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
+                LinearDistanceMeasureInches(
+                        wheelRadius.toUnit(LinearDistanceUnit.Standard.INCHES).value
+                                * dynamicsTemplate.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value, //TODO check math after removing radius conversion
+                motorModel,
+                motorModel
+        ))
+
+        kinematicsModelRef.set(Kinematics(wheelbase, dynamicsTemplate.trackScrubFactor))
+
+        pathFollowingConfigRef.set(PathFollowingConfig(pathFollowingTemplate.maxErrorX, pathFollowingTemplate.maxErrorY, pathFollowingTemplate.maxErrorTheta))
+    }
 
     /**
      * Resets the pose.  Use this instead of directly resetting driveState to ensure that heading tracks properly.
