@@ -20,7 +20,8 @@ import org.team401.taxis.template.PathFollowingTemplate
  * Pulls in the values from
  */
 interface PathFollowingDiffDrive: TankDrivetrain {
-    val motorModel: DCMotorTransmission
+    val leftMotorModel: DCMotorTransmission
+    val rightMotorModel: DCMotorTransmission
     val dynamicsModel: DifferentialDrive
     val kinematicsModel: Kinematics
     val driveState: DifferentialDriveState

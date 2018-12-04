@@ -9,17 +9,32 @@ interface DriveDynamicsTemplate {
     /**
      * Voltage "intercept" gain
      */
-    val kS: Double
+    val leftKs: Double
 
     /**
      * Velocity gain
      */
-    val kV: Double
+    val leftKv: Double
 
     /**
      * Acceleration gain
      */
-    val kA: Double
+    val leftKa: Double
+
+    /**
+     * Voltage "intercept" gain
+     */
+    val rightKs: Double
+
+    /**
+     * Velocity gain
+     */
+    val rightKv: Double
+
+    /**
+     * Acceleration gain
+     */
+    val rightKa: Double
 
     /**
      * Robot inertial mass, in kg

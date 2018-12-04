@@ -45,13 +45,17 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
         updateModel(geometryTemplate, dynamicsTemplate, pathFollowingTemplate)
     }
 
-    private val motorModelRef = AtomicReference<DCMotorTransmission>()
+    private val leftMotorModelRef = AtomicReference<DCMotorTransmission>()
+    private val rightMotorModelRef = AtomicReference<DCMotorTransmission>()
     private val dynamicsModelRef = AtomicReference<DifferentialDrive>()
     private val kinematicsModelRef = AtomicReference<Kinematics>()
     private val pathFollowingConfigRef = AtomicReference<PathFollowingConfig>()
 
-    override val motorModel: DCMotorTransmission
-    get() = motorModelRef.get()
+    override val leftMotorModel: DCMotorTransmission
+    get() = leftMotorModelRef.get()
+
+    override val rightMotorModel: DCMotorTransmission
+    get() = rightMotorModelRef.get()
     
     override val dynamicsModel: DifferentialDrive
     get() = dynamicsModelRef.get()
@@ -64,12 +68,20 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
     override val pathManager = DrivetrainPathManager(dynamicsModelRef, pathFollowingConfigRef, pathController)
 
     override fun updateModel(geometryTemplate: TankDrivetrainGeometryTemplate, dynamicsTemplate: DriveDynamicsTemplate, pathFollowingTemplate: PathFollowingTemplate) {
-        motorModelRef.set(DCMotorTransmission(
-                1.0 / dynamicsTemplate.kV,
+        leftMotorModelRef.set(DCMotorTransmission(
+                1.0 / dynamicsTemplate.leftKv,
                 (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
                         (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                        dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.kA),
-                dynamicsTemplate.kS
+                        dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.leftKa),
+                dynamicsTemplate.leftKs
+        ))
+
+        rightMotorModelRef.set(DCMotorTransmission(
+                1.0 / dynamicsTemplate.leftKv,
+                (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                        (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                        dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.leftKa),
+                dynamicsTemplate.leftKs
         ))
 
         dynamicsModelRef.set(DifferentialDrive(
@@ -78,8 +90,8 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                 dynamicsTemplate.angularDrag,
                 geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
                 Units.inches_to_meters(geometryTemplate.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value / 2.0 * dynamicsTemplate.trackScrubFactor),
-                motorModel,
-                motorModel
+                leftMotorModelRef.get(),
+                rightMotorModelRef.get()
         ))
 
         kinematicsModelRef.set(Kinematics(geometryTemplate.wheelbase, dynamicsTemplate.trackScrubFactor))

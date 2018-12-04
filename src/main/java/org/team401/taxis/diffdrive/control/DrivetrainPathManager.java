@@ -16,6 +16,7 @@ import org.team401.taxis.trajectory.timing.TimingConstraint;
 import org.team401.taxis.trajectory.timing.TimingUtil;
 import org.team401.taxis.util.CSVWritable;
 import org.team401.taxis.util.Units;
+import org.team401.taxis.util.Util;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -112,6 +113,20 @@ public class DrivetrainPathManager implements CSVWritable {
                 (reversed, new
                         DistanceView<>(trajectory), kMaxDx, all_constraints, start_vel, end_vel, max_vel, max_accel);
         return timed_trajectory;
+    }
+
+    public void setTrajectory(final TrajectoryIterator<TimedState<Pose2dWithCurvature>> trajectory) {
+        mCurrentTrajectory = trajectory;
+        mSetpoint = trajectory.getState();
+        for (int i = 0; i < trajectory.trajectory().length(); ++i) {
+            if (trajectory.trajectory().getState(i).velocity() > Util.kEpsilon) {
+                mIsReversed = false;
+                break;
+            } else if (trajectory.trajectory().getState(i).velocity() < -Util.kEpsilon) {
+                mIsReversed = true;
+                break;
+            }
+        }
     }
 
     @Override
