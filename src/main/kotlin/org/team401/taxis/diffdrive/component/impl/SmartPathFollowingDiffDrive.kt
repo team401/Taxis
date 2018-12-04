@@ -22,6 +22,7 @@ import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
 import org.team401.taxis.template.DriveDynamicsTemplate
 import org.team401.taxis.template.PathFollowingTemplate
+import org.team401.taxis.util.Units
 import java.util.concurrent.atomic.AtomicReference
 
 /**
@@ -65,8 +66,8 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
     override fun updateModel(geometryTemplate: TankDrivetrainGeometryTemplate, dynamicsTemplate: DriveDynamicsTemplate, pathFollowingTemplate: PathFollowingTemplate) {
         motorModelRef.set(DCMotorTransmission(
                 1.0 / dynamicsTemplate.kV,
-                (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                        (wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                        (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
                         dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.kA),
                 dynamicsTemplate.kS
         ))
@@ -75,15 +76,13 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                 dynamicsTemplate.inertialMass,
                 dynamicsTemplate.momentOfInertia,
                 dynamicsTemplate.angularDrag,
-                wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
-                LinearDistanceMeasureInches(
-                        wheelRadius.toUnit(LinearDistanceUnit.Standard.INCHES).value
-                                * dynamicsTemplate.trackScrubFactor).toUnit(LinearDistanceUnit.Standard.METERS).value, //TODO check math after removing radius conversion
+                geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
+                Units.inches_to_meters(geometryTemplate.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value / 2.0 * dynamicsTemplate.trackScrubFactor),
                 motorModel,
                 motorModel
         ))
 
-        kinematicsModelRef.set(Kinematics(wheelbase, dynamicsTemplate.trackScrubFactor))
+        kinematicsModelRef.set(Kinematics(geometryTemplate.wheelbase, dynamicsTemplate.trackScrubFactor))
 
         pathFollowingConfigRef.set(PathFollowingConfig(pathFollowingTemplate.maxErrorX, pathFollowingTemplate.maxErrorY, pathFollowingTemplate.maxErrorTheta))
     }
