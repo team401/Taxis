@@ -30,6 +30,7 @@ dependencies {
     implementation "org.snakeskin:SnakeSkin-FRC:2.0b12"
     implementation "org.snakeskin:SnakeSkin-CTRE:2.0b12"
     
+    implementation "edu.wpi.first.ntcore:ntcore-java:4.1.0"
     implementation "com.ctre.frcbeta.phoenix:api-java:5.9.0"
 
     api "gov.nist.math:jama:1.0.3"
