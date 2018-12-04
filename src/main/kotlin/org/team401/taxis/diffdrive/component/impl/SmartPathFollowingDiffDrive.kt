@@ -6,6 +6,8 @@ import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.component.impl.SmartTankDrivetrain
 import org.snakeskin.hardware.Hardware
 import org.snakeskin.template.TankDrivetrainGeometryTemplate
+import org.snakeskin.units.Degrees
+import org.snakeskin.units.Inches
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureCTREMagEncoder
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureDegrees
@@ -41,15 +43,15 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                                   pathController: PathController,
                                   driveStateObservationBufferSize: Int = 100): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
 
-    init {
-        updateModel(geometryTemplate, dynamicsTemplate, pathFollowingTemplate)
-    }
-
     private val leftMotorModelRef = AtomicReference<DCMotorTransmission>()
     private val rightMotorModelRef = AtomicReference<DCMotorTransmission>()
     private val dynamicsModelRef = AtomicReference<DifferentialDrive>()
     private val kinematicsModelRef = AtomicReference<Kinematics>()
     private val pathFollowingConfigRef = AtomicReference<PathFollowingConfig>()
+
+    init {
+        updateModel(geometryTemplate, dynamicsTemplate, pathFollowingTemplate)
+    }
 
     override val leftMotorModel: DCMotorTransmission
     get() = leftMotorModelRef.get()

@@ -4,6 +4,7 @@ import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.hardware.Hardware
 import org.snakeskin.template.TankDrivetrainGeometryTemplate
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
+import org.team401.taxis.diffdrive.control.PathFollowingConfig
 import org.team401.taxis.diffdrive.odometry.DifferentialDriveState
 import org.team401.taxis.diffdrive.odometry.Kinematics
 import org.team401.taxis.geometry.Pose2d
@@ -12,6 +13,7 @@ import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
 import org.team401.taxis.template.DriveDynamicsTemplate
 import org.team401.taxis.template.PathFollowingTemplate
+import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle
