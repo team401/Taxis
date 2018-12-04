@@ -47,7 +47,7 @@ public class DrivetrainPathManager implements CSVWritable {
     TrajectoryIterator<TimedState<Pose2dWithCurvature>> mCurrentTrajectory;
     boolean mIsReversed = false;
     double mLastTime = Double.POSITIVE_INFINITY;
-    public TimedState<Pose2dWithCurvature> mSetpoint = new TimedState<>(Pose2dWithCurvature.identity());
+    TimedState<Pose2dWithCurvature> mSetpoint = new TimedState<>(Pose2dWithCurvature.identity());
     Pose2d mError = Pose2d.identity();
     Output mOutput = new Output();
 
