@@ -43,11 +43,11 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                                   pathController: PathController,
                                   driveStateObservationBufferSize: Int = 100): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
 
-    private val leftMotorModelRef = AtomicReference<DCMotorTransmission>()
-    private val rightMotorModelRef = AtomicReference<DCMotorTransmission>()
-    private val dynamicsModelRef = AtomicReference<DifferentialDrive>()
-    private val kinematicsModelRef = AtomicReference<Kinematics>()
-    private val pathFollowingConfigRef = AtomicReference<PathFollowingConfig>()
+    override val leftMotorModelRef = AtomicReference<DCMotorTransmission>()
+    override val rightMotorModelRef = AtomicReference<DCMotorTransmission>()
+    override val dynamicsModelRef = AtomicReference<DifferentialDrive>()
+    override val kinematicsModelRef = AtomicReference<Kinematics>()
+    override val pathFollowingConfigRef = AtomicReference<PathFollowingConfig>()
 
     init {
         updateModel(geometryTemplate, dynamicsTemplate, pathFollowingTemplate)

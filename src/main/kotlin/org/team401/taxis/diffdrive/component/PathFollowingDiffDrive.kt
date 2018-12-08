@@ -22,6 +22,12 @@ import java.util.concurrent.atomic.AtomicReference
  * Pulls in the values from
  */
 interface PathFollowingDiffDrive: TankDrivetrain {
+    val leftMotorModelRef: AtomicReference<DCMotorTransmission>
+    val rightMotorModelRef: AtomicReference<DCMotorTransmission>
+    val dynamicsModelRef: AtomicReference<DifferentialDrive>
+    val kinematicsModelRef: AtomicReference<Kinematics>
+    val pathFollowingConfigRef: AtomicReference<PathFollowingConfig>
+
     val leftMotorModel: DCMotorTransmission
     val rightMotorModel: DCMotorTransmission
     val dynamicsModel: DifferentialDrive
