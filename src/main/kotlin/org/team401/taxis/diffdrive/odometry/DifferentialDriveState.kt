@@ -1,6 +1,7 @@
 package org.team401.taxis.diffdrive.odometry
 
 import org.snakeskin.hardware.Hardware
+import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference
  * @version 9/10/2018
  *
  */
-class DifferentialDriveState(val observationBufferSize: Int = 100, var kinematicsRef: AtomicReference<Kinematics>) {
+class DifferentialDriveState(val observationBufferSize: Int = 100, val fullStateModel: FullStateDiffDriveModel): OdometryProvider {
     private lateinit var fieldToVehicle: InterpolatingTreeMap<InterpolatingDouble, Pose2d>
     private lateinit var vehicleVelocityPredicted: Twist2d
     private lateinit var vehicleVelocityMeasured: Twist2d
@@ -53,14 +54,14 @@ class DifferentialDriveState(val observationBufferSize: Int = 100, var kinematic
     }
 
     @Synchronized fun addObservations(timestamp: Double, measuredVelocity: Twist2d, predictedVelocity: Twist2d) {
-        addFieldToVehicleObservation(timestamp, kinematicsRef.get().integrateForwardKinematics(getLatestFieldToVehicle().value, measuredVelocity))
+        addFieldToVehicleObservation(timestamp, fullStateModel.drivetrainKinematicsModel.integrateForwardKinematics(getLatestFieldToVehicle().value, measuredVelocity))
         vehicleVelocityMeasured = measuredVelocity
         vehicleVelocityPredicted = predictedVelocity
     }
 
     @Synchronized fun generateOdometryFromSensors(leftEncoderDeltaDistance: Double, rightEncoderDeltaDistance: Double, currentGyroAngle: Rotation2d): Twist2d {
         val lastMeasurement = getLatestFieldToVehicle().value
-        val delta = kinematicsRef.get().forwardKinematics(
+        val delta = fullStateModel.drivetrainKinematicsModel.forwardKinematics(
                 lastMeasurement.rotation,
                 leftEncoderDeltaDistance, rightEncoderDeltaDistance,
                 currentGyroAngle
@@ -79,5 +80,17 @@ class DifferentialDriveState(val observationBufferSize: Int = 100, var kinematic
 
     @Synchronized fun getMeasuredVelocity(): Twist2d {
         return vehicleVelocityMeasured
+    }
+
+    override fun getLatestXInches(): Double {
+        return getLatestFieldToVehicle().value.translation.x()
+    }
+
+    override fun getLatestYInches(): Double {
+        return getLatestFieldToVehicle().value.translation.y()
+    }
+
+    override fun getLatestThetaRadians(): Double {
+        return getLatestFieldToVehicle().value.rotation.radians
     }
 }

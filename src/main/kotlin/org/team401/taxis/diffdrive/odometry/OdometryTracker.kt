@@ -1,12 +1,11 @@
 package org.team401.taxis.diffdrive.odometry
 
-import org.snakeskin.component.TankDrivetrain
 import org.snakeskin.rt.RealTimeExecutor
 import org.snakeskin.rt.RealTimeTask
-import org.snakeskin.units.AngularDistanceUnit
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.LinearVelocityUnit
 import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
+import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
 import org.team401.taxis.geometry.Rotation2d
 
 /**
@@ -15,42 +14,23 @@ import org.team401.taxis.geometry.Rotation2d
  *
  * Provides a loop to track odometry
  */
-class OdometryTracker(private val drivetrain: PathFollowingDiffDrive): RealTimeTask {
+class OdometryTracker(private val fullStateModel: FullStateDiffDriveModel, private val provider: DriveDataProvider, private val driveState: DifferentialDriveState): RealTimeTask {
+    constructor(drivetrain: PathFollowingDiffDrive) : this(drivetrain.fullStateModel, drivetrain.driveDataProvider, drivetrain.driveState)
+
     override val name = "Odometry Tracker"
 
-    private fun getLeftPositionInches(): Double {
-        return drivetrain.left.getPosition().toLinearDistance(drivetrain.wheelRadius).toUnit(LinearDistanceUnit.Standard.INCHES).value
-    }
-
-    private fun getRightPositionInches(): Double {
-        return drivetrain.right.getPosition().toLinearDistance(drivetrain.wheelRadius).toUnit(LinearDistanceUnit.Standard.INCHES).value
-    }
-
-    private fun getLeftVelocityIps(): Double {
-        return drivetrain.left.getVelocity().toLinearVelocity(drivetrain.wheelRadius).toUnit(LinearVelocityUnit.Standard.INCHES_PER_SECOND).value
-    }
-
-    private fun getRightVelocityIps(): Double {
-        return drivetrain.right.getVelocity().toLinearVelocity(drivetrain.wheelRadius).toUnit(LinearVelocityUnit.Standard.INCHES_PER_SECOND).value
-    }
-
-    private fun getGyroHeading(): Rotation2d {
-        return drivetrain.getHeading()
-    }
-
-
-    private var leftEncoderPrevDistance = getLeftPositionInches()
-    private var rightEncoderPrevDistance = getRightPositionInches()
+    private var leftEncoderPrevDistance = provider.getLeftPositionInches()
+    private var rightEncoderPrevDistance = provider.getRightPositionInches()
 
     override fun action(ctx: RealTimeExecutor.RealTimeContext) {
-        val leftDistance = getLeftPositionInches()
-        val rightDistance = getRightPositionInches()
+        val leftDistance = provider.getLeftPositionInches()
+        val rightDistance = provider.getRightPositionInches()
         val deltaLeft = leftDistance - leftEncoderPrevDistance
         val deltaRight = rightDistance - rightEncoderPrevDistance
-        val gyroAngle = getGyroHeading()
-        val odometryVelocity = drivetrain.driveState.generateOdometryFromSensors(deltaLeft, deltaRight, gyroAngle)
-        val predictedVelocity = drivetrain.kinematicsModel.forwardKinematics(getLeftVelocityIps(), getRightVelocityIps())
-        drivetrain.driveState.addObservations(ctx.time, odometryVelocity, predictedVelocity)
+        val gyroAngle = provider.getGyroHeading()
+        val odometryVelocity = driveState.generateOdometryFromSensors(deltaLeft, deltaRight, gyroAngle)
+        val predictedVelocity = fullStateModel.drivetrainKinematicsModel.forwardKinematics(provider.getLeftVelocityIps(), provider.getRightVelocityIps())
+        driveState.addObservations(ctx.time, odometryVelocity, predictedVelocity)
         leftEncoderPrevDistance = leftDistance
         rightEncoderPrevDistance = rightDistance
     }

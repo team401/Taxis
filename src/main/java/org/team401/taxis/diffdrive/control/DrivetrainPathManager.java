@@ -1,10 +1,5 @@
 package org.team401.taxis.diffdrive.control;
 
-import kotlin.jvm.Synchronized;
-import org.snakeskin.units.AngularDistanceUnit;
-import org.snakeskin.units.LinearDistanceUnit;
-import org.team401.taxis.diffdrive.control.PathController;
-import org.team401.taxis.diffdrive.control.PathFollowingConfig;
 import org.team401.taxis.geometry.Pose2d;
 import org.team401.taxis.geometry.Pose2dWithCurvature;
 import org.team401.taxis.geometry.Rotation2d;
@@ -21,29 +16,32 @@ import org.team401.taxis.util.Util;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author Cameron Earle
  * @version 12/3/2018
  *
- * This file is a super messy combination 254s code and mine, hence the inconsistent naming scheme
  */
 public class DrivetrainPathManager implements CSVWritable {
-    public DrivetrainPathManager(AtomicReference<DifferentialDrive> dynamicsModelRef,
-                                 AtomicReference<PathFollowingConfig> pathFollowingConfigRef,
-                                 PathController controller) {
-        this.dynamicsModelRef = dynamicsModelRef;
-        this.pathFollowingConfigRef = pathFollowingConfigRef;
+    public DrivetrainPathManager(FullStateDiffDriveModel fullStateModel,
+                                 PathController controller,
+                                 double maxDx,
+                                 double maxDy,
+                                 double maxDTheta) {
+        this.fullStateModel = fullStateModel;
         this.controller = controller;
+        kMaxDx = maxDx;
+        kMaxDy = maxDy;
+        kMaxDTheta = maxDTheta;
     }
 
-    //My stuff
-    private final AtomicReference<DifferentialDrive> dynamicsModelRef;
-    private final AtomicReference<PathFollowingConfig> pathFollowingConfigRef;
+    private final FullStateDiffDriveModel fullStateModel;
     private PathController controller;
 
-    //254s stuff
+    private double kMaxDx;
+    private double kMaxDy;
+    private double kMaxDTheta;
+
     TrajectoryIterator<TimedState<Pose2dWithCurvature>> mCurrentTrajectory;
     boolean mIsReversed = false;
     double mLastTime = Double.POSITIVE_INFINITY;
@@ -72,10 +70,6 @@ public class DrivetrainPathManager implements CSVWritable {
             double max_vel,  // inches/s
             double max_accel,  // inches/s^2
             double max_voltage) {
-        double kMaxDx = pathFollowingConfigRef.get().getMaxErrorX().toUnit(LinearDistanceUnit.Standard.INCHES).getValue();
-        double kMaxDy = pathFollowingConfigRef.get().getMaxErrorY().toUnit(LinearDistanceUnit.Standard.INCHES).getValue();
-        double kMaxDTheta = pathFollowingConfigRef.get().getMaxErrorTheta().toUnit(AngularDistanceUnit.Standard.RADIANS).getValue();
-        DifferentialDrive mModel = dynamicsModelRef.get();
 
         List<Pose2d> waypoints_maybe_flipped = waypoints;
         final Pose2d flip = Pose2d.fromRotation(new Rotation2d(-1, 0, false));
@@ -102,7 +96,7 @@ public class DrivetrainPathManager implements CSVWritable {
         // Create the constraint that the robot must be able to traverse the trajectory without ever applying more
         // than the specified voltage.
         final DifferentialDriveDynamicsConstraint<Pose2dWithCurvature> drive_constraints = new
-                DifferentialDriveDynamicsConstraint<>(mModel, max_voltage);
+                DifferentialDriveDynamicsConstraint<>(fullStateModel.getDrivetrainDynamicsModel(), max_voltage);
         List<TimingConstraint<Pose2dWithCurvature>> all_constraints = new ArrayList<>();
         all_constraints.add(drive_constraints);
         if (constraints != null) {
@@ -138,8 +132,6 @@ public class DrivetrainPathManager implements CSVWritable {
     }
 
     public Output update(double timestamp, Pose2d current_state) {
-        DifferentialDrive mModel = dynamicsModelRef.get();
-
         if (mCurrentTrajectory == null) return new Output();
 
         if (mCurrentTrajectory.getProgress() == 0.0 && !Double.isFinite(mLastTime)) {
@@ -158,13 +150,13 @@ public class DrivetrainPathManager implements CSVWritable {
             final double dcurvature_ds_m = Units.meters_to_inches(Units.meters_to_inches(mSetpoint.state()
                     .getDCurvatureDs()));
             final double acceleration_m = Units.inches_to_meters(mSetpoint.acceleration());
-            final DifferentialDrive.DriveDynamics dynamics = mModel.solveInverseDynamics(
+            final DifferentialDrive.DriveDynamics dynamics = fullStateModel.getDrivetrainDynamicsModel().solveInverseDynamics(
                     new DifferentialDrive.ChassisState(velocity_m, velocity_m * curvature_m),
                     new DifferentialDrive.ChassisState(acceleration_m,
                             acceleration_m * curvature_m + velocity_m * velocity_m * dcurvature_ds_m));
             mError = current_state.inverse().transformBy(mSetpoint.state().getPose());
 
-            mOutput = controller.update(dynamics, current_state, mError, mModel, mDt);
+            mOutput = controller.update(dynamics, current_state, mError, fullStateModel.getDrivetrainDynamicsModel(), mDt);
         } else {
             // TODO Possibly switch to a pose stabilizing controller?
             mOutput = new Output();
