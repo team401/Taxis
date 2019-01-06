@@ -8,7 +8,9 @@ import org.snakeskin.template.TankDrivetrainGeometryTemplate
 import org.snakeskin.units.AngularDistanceUnit
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasure
+import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureDegrees
 import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
+import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
 import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
@@ -33,9 +35,9 @@ class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTempla
                                   imu: PigeonIMU,
                                   pathController: PathController,
                                   driveStateObservationBufferSize: Int = 100,
-                                  pathGenerationMaxDx: LinearDistanceMeasure,
-                                  pathGenerationMaxDy: LinearDistanceMeasure,
-                                  pathGenerationMaxDTheta: AngularDistanceMeasure): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
+                                  pathGenerationMaxDx: LinearDistanceMeasure = LinearDistanceMeasureInches(2.0),
+                                  pathGenerationMaxDy: LinearDistanceMeasure = LinearDistanceMeasureInches(0.25),
+                                  pathGenerationMaxDTheta: AngularDistanceMeasure = AngularDistanceMeasureDegrees(5.0)): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
 
     override val fullStateModel = FullStateDiffDriveModel(geometryTemplate, dynamicsTemplate)
 
