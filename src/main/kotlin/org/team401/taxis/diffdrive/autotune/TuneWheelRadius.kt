@@ -1,7 +1,8 @@
 package org.team401.taxis.diffdrive.autotune
 
 import org.snakeskin.auto.steps.AutoStep
-import org.snakeskin.component.TankDrivetrain
+import org.snakeskin.component.IDifferentialDrivetrain
+import org.snakeskin.component.ISensoredGearbox
 import org.snakeskin.units.AngularDistanceUnit
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureCTREMagEncoder
@@ -11,7 +12,7 @@ import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
  * @author Cameron Earle
  * @version 9/16/18
  */
-class TuneWheelRadius(val drive: TankDrivetrain, val distance: LinearDistanceMeasure): AutoStep() {
+class TuneWheelRadius(val drive: IDifferentialDrivetrain<ISensoredGearbox>, val distance: LinearDistanceMeasure): AutoStep() {
     override fun entry(currentTime: Double) {
         drive.left.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
         drive.right.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))

@@ -1,15 +1,16 @@
 package org.team401.taxis.diffdrive.odometry
 
+import org.snakeskin.component.ISensoredGearbox
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.LinearVelocityUnit
-import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
+import org.team401.taxis.diffdrive.component.IPathFollowingDiffDrive
 import org.team401.taxis.geometry.Rotation2d
 
 /**
  * @author Cameron Earle
  * @version 1/4/19
  */
-class DiffDriveDataProvider(private val drivetrain: PathFollowingDiffDrive): DriveDataProvider {
+class DiffDriveDataProvider(private val drivetrain: IPathFollowingDiffDrive<ISensoredGearbox>): DriveDataProvider {
     override fun getLeftPositionInches(): Double {
         return drivetrain.left.getPosition().toLinearDistance(drivetrain.wheelRadius).toUnit(LinearDistanceUnit.Standard.INCHES).value
     }

@@ -1,9 +1,8 @@
 package org.team401.taxis.diffdrive.control
 
+import org.snakeskin.component.template.TankDrivetrainGeometryTemplate
 import org.snakeskin.logic.LockingDelegate
-import org.snakeskin.template.TankDrivetrainGeometryTemplate
 import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureRadians
 import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.diffdrive.odometry.Kinematics
 import org.team401.taxis.physics.DCMotorTransmission

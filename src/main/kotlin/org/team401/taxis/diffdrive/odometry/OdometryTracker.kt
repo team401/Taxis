@@ -1,12 +1,10 @@
 package org.team401.taxis.diffdrive.odometry
 
+import org.snakeskin.component.ISensoredGearbox
 import org.snakeskin.rt.RealTimeExecutor
 import org.snakeskin.rt.RealTimeTask
-import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.LinearVelocityUnit
-import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
+import org.team401.taxis.diffdrive.component.IPathFollowingDiffDrive
 import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
-import org.team401.taxis.geometry.Rotation2d
 
 /**
  * @author Cameron Earle
@@ -15,7 +13,7 @@ import org.team401.taxis.geometry.Rotation2d
  * Provides a loop to track odometry
  */
 class OdometryTracker(private val fullStateModel: FullStateDiffDriveModel, private val provider: DriveDataProvider, private val driveState: DifferentialDriveState): RealTimeTask {
-    constructor(drivetrain: PathFollowingDiffDrive) : this(drivetrain.fullStateModel, drivetrain.driveDataProvider, drivetrain.driveState)
+    constructor(drivetrain: IPathFollowingDiffDrive<ISensoredGearbox>) : this(drivetrain.fullStateModel, drivetrain.driveDataProvider, drivetrain.driveState)
 
     override val name = "Odometry Tracker"
 

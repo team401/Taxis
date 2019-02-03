@@ -1,8 +1,7 @@
 package org.team401.taxis.diffdrive.autotune
 
-import com.ctre.phoenix.motorcontrol.ControlMode
 import org.snakeskin.auto.steps.AutoStep
-import org.snakeskin.component.TankDrivetrain
+import org.snakeskin.component.*
 import org.snakeskin.units.AngularDistanceUnit
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureCTREMagEncoder
@@ -17,7 +16,7 @@ import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureRevolu
  *
  * Right turns increase angle
  */
-class TuneTrackScrubFactor(val drivetrain: TankDrivetrain, turns: Int = 10, power: Double = 1.0, direction: Boolean = true): AutoStep() {
+class TuneTrackScrubFactor(val drivetrain: IYawSensoredDifferentialDrivetrain<ISensoredGearbox>, turns: Int = 10, power: Double = 1.0, direction: Boolean = true): AutoStep() {
     private val turnRadians = AngularDistanceMeasureRevolutions(turns.toDouble()).toUnit(AngularDistanceUnit.Standard.RADIANS).value
     private val turnPower = if (direction) power else -power
 
@@ -29,7 +28,7 @@ class TuneTrackScrubFactor(val drivetrain: TankDrivetrain, turns: Int = 10, powe
     }
 
     override fun action(currentTime: Double, lastTime: Double): Boolean {
-        drivetrain.tank(ControlMode.PercentOutput, turnPower, -turnPower)
+        drivetrain.tank(turnPower, -turnPower)
         val yaw = Math.abs(drivetrain.getYaw().toUnit(AngularDistanceUnit.Standard.RADIANS).value)
         if (yaw >= turnRadians) {
             val leftPos = Math.abs(drivetrain.left.getPosition().toLinearDistance(drivetrain.wheelRadius).toUnit(LinearDistanceUnit.Standard.INCHES).value)

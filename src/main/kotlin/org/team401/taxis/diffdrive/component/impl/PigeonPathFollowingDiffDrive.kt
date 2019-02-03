@@ -1,18 +1,22 @@
 package org.team401.taxis.diffdrive.component.impl
 
+import com.ctre.phoenix.motorcontrol.can.TalonSRX
 import com.ctre.phoenix.sensors.PigeonIMU
-import org.snakeskin.component.Gearbox
-import org.snakeskin.component.TankDrivetrain
-import org.snakeskin.component.impl.SmartTankDrivetrain
-import org.snakeskin.template.TankDrivetrainGeometryTemplate
+import org.snakeskin.component.ISensoredGearbox
+import org.snakeskin.component.impl.CTRESmartGearbox
+import org.snakeskin.component.impl.PigeonIMUDifferentialDrivetrain
+import org.snakeskin.component.impl.WPIGearbox
+import org.snakeskin.component.template.TankDrivetrainGeometryTemplate
+import org.snakeskin.subsystem.Subsystem
 import org.snakeskin.units.AngularDistanceUnit
 import org.snakeskin.units.LinearDistanceUnit
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasure
 import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureDegrees
 import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
 import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
-import org.team401.taxis.diffdrive.component.PathFollowingDiffDrive
+import org.team401.taxis.diffdrive.component.IPathFollowingDiffDrive
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
+import org.team401.taxis.diffdrive.control.FeedforwardOnlyPathController
 import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
 import org.team401.taxis.diffdrive.control.PathController
 import org.team401.taxis.diffdrive.odometry.DiffDriveDataProvider
@@ -28,16 +32,16 @@ import org.team401.taxis.template.DriveDynamicsTemplate
  * Represents a "smart" (CTRE) differential drivetrain that is capable of path following.
  * Essentially gathers all the components required for path following into a single class
  */
-class SmartPathFollowingDiffDrive(geometryTemplate: TankDrivetrainGeometryTemplate,
-                                  dynamicsTemplate: DriveDynamicsTemplate,
-                                  left: Gearbox,
-                                  right: Gearbox,
-                                  imu: PigeonIMU,
-                                  pathController: PathController,
-                                  driveStateObservationBufferSize: Int = 100,
-                                  pathGenerationMaxDx: LinearDistanceMeasure = LinearDistanceMeasureInches(2.0),
-                                  pathGenerationMaxDy: LinearDistanceMeasure = LinearDistanceMeasureInches(0.25),
-                                  pathGenerationMaxDTheta: AngularDistanceMeasure = AngularDistanceMeasureDegrees(5.0)): TankDrivetrain by SmartTankDrivetrain(geometryTemplate, left, right, imu), PathFollowingDiffDrive {
+class PigeonPathFollowingDiffDrive<G: ISensoredGearbox>(left: G,
+                                                       right: G,
+                                                       imu: PigeonIMU,
+                                                       geometryTemplate: TankDrivetrainGeometryTemplate,
+                                                       dynamicsTemplate: DriveDynamicsTemplate,
+                                                       pathController: PathController,
+                                                       driveStateObservationBufferSize: Int = 100,
+                                                       pathGenerationMaxDx: LinearDistanceMeasure = LinearDistanceMeasureInches(2.0),
+                                                       pathGenerationMaxDy: LinearDistanceMeasure = LinearDistanceMeasureInches(0.25),
+                                                       pathGenerationMaxDTheta: AngularDistanceMeasure = AngularDistanceMeasureDegrees(5.0)): IPathFollowingDiffDrive<G>, PigeonIMUDifferentialDrivetrain<G>(left, right, imu, geometryTemplate) {
 
     override val fullStateModel = FullStateDiffDriveModel(geometryTemplate, dynamicsTemplate)
 
