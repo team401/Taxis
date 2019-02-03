@@ -26,9 +26,9 @@ repositories {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "org.snakeskin:SnakeSkin-Core:2.0rc3b"
-    implementation "org.snakeskin:SnakeSkin-FRC:2.0rc3b"
-    implementation "org.snakeskin:SnakeSkin-CTRE:2.0rc3b"
+    implementation "org.snakeskin:SnakeSkin-Core:2.0rc3c"
+    implementation "org.snakeskin:SnakeSkin-FRC:2.0rc3c"
+    implementation "org.snakeskin:SnakeSkin-CTRE:2.0rc3c"
     
     implementation "edu.wpi.first.hal:hal-java:2019.2.1"
     implementation "edu.wpi.first.ntcore:ntcore-java:2019.2.1"
