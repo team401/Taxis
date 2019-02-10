@@ -1,9 +1,8 @@
 package org.team401.taxis.diffdrive.control
 
-import org.snakeskin.component.template.TankDrivetrainGeometryTemplate
+import org.snakeskin.template.TankDrivetrainGeometryTemplate
 import org.snakeskin.logic.LockingDelegate
-import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
+import org.snakeskin.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.diffdrive.odometry.Kinematics
 import org.team401.taxis.physics.DCMotorTransmission
 import org.team401.taxis.physics.DifferentialDrive
@@ -28,16 +27,16 @@ class FullStateDiffDriveModel(geometryTemplate: TankDrivetrainGeometryTemplate,
     fun updateModel(geometryTemplate: TankDrivetrainGeometryTemplate, dynamicsTemplate: DriveDynamicsTemplate) {
         leftTransmissionModel = DCMotorTransmission(
                 1.0 / dynamicsTemplate.leftKv,
-                (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                        (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                (geometryTemplate.wheelRadius.toMeters().value) *
+                        (geometryTemplate.wheelRadius.toMeters().value) *
                         dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.leftKa),
                 dynamicsTemplate.leftKs
         )
 
         rightTransmissionModel = DCMotorTransmission(
                 1.0 / dynamicsTemplate.leftKv,
-                (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
-                        (geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value) *
+                (geometryTemplate.wheelRadius.toMeters().value) *
+                        (geometryTemplate.wheelRadius.toMeters().value) *
                         dynamicsTemplate.inertialMass / (2.0 * dynamicsTemplate.leftKa),
                 dynamicsTemplate.leftKs
         )
@@ -46,8 +45,8 @@ class FullStateDiffDriveModel(geometryTemplate: TankDrivetrainGeometryTemplate,
                 dynamicsTemplate.inertialMass,
                 dynamicsTemplate.momentOfInertia,
                 dynamicsTemplate.angularDrag,
-                geometryTemplate.wheelRadius.toUnit(LinearDistanceUnit.Standard.METERS).value,
-                Units.inches_to_meters(geometryTemplate.wheelbase.toUnit(LinearDistanceUnit.Standard.INCHES).value / 2.0 * dynamicsTemplate.trackScrubFactor),
+                geometryTemplate.wheelRadius.toMeters().value,
+                Units.inches_to_meters(geometryTemplate.wheelbase.value / 2.0 * dynamicsTemplate.trackScrubFactor),
                 leftTransmissionModel,
                 rightTransmissionModel
         )

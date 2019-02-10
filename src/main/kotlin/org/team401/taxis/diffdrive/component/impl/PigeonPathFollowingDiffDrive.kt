@@ -6,14 +6,11 @@ import org.snakeskin.component.ISensoredGearbox
 import org.snakeskin.component.impl.CTRESmartGearbox
 import org.snakeskin.component.impl.PigeonIMUDifferentialDrivetrain
 import org.snakeskin.component.impl.WPIGearbox
-import org.snakeskin.component.template.TankDrivetrainGeometryTemplate
+import org.snakeskin.measure.distance.angular.AngularDistanceMeasureDegrees
+import org.snakeskin.measure.distance.angular.AngularDistanceMeasureRadians
+import org.snakeskin.measure.distance.linear.LinearDistanceMeasureInches
+import org.snakeskin.template.TankDrivetrainGeometryTemplate
 import org.snakeskin.subsystem.Subsystem
-import org.snakeskin.units.AngularDistanceUnit
-import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasure
-import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureDegrees
-import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
-import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.diffdrive.component.IPathFollowingDiffDrive
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
 import org.team401.taxis.diffdrive.control.FeedforwardOnlyPathController
@@ -39,18 +36,18 @@ class PigeonPathFollowingDiffDrive<G: ISensoredGearbox>(left: G,
                                                        dynamicsTemplate: DriveDynamicsTemplate,
                                                        pathController: PathController,
                                                        driveStateObservationBufferSize: Int = 100,
-                                                       pathGenerationMaxDx: LinearDistanceMeasure = LinearDistanceMeasureInches(2.0),
-                                                       pathGenerationMaxDy: LinearDistanceMeasure = LinearDistanceMeasureInches(0.25),
-                                                       pathGenerationMaxDTheta: AngularDistanceMeasure = AngularDistanceMeasureDegrees(5.0)): IPathFollowingDiffDrive<G>, PigeonIMUDifferentialDrivetrain<G>(left, right, imu, geometryTemplate) {
+                                                       pathGenerationMaxDx: LinearDistanceMeasureInches = LinearDistanceMeasureInches(2.0),
+                                                       pathGenerationMaxDy: LinearDistanceMeasureInches = LinearDistanceMeasureInches(0.25),
+                                                       pathGenerationMaxDTheta: AngularDistanceMeasureRadians = AngularDistanceMeasureDegrees(5.0).toRadians()): IPathFollowingDiffDrive<G>, PigeonIMUDifferentialDrivetrain<G>(left, right, imu, geometryTemplate) {
 
     override val fullStateModel = FullStateDiffDriveModel(geometryTemplate, dynamicsTemplate)
 
     override val driveState = DifferentialDriveState(driveStateObservationBufferSize, fullStateModel)
 
     override val pathManager = DrivetrainPathManager(fullStateModel, pathController,
-            pathGenerationMaxDx.toUnit(LinearDistanceUnit.Standard.INCHES).value,
-            pathGenerationMaxDy.toUnit(LinearDistanceUnit.Standard.INCHES).value,
-            pathGenerationMaxDTheta.toUnit(AngularDistanceUnit.Standard.RADIANS).value)
+            pathGenerationMaxDx.value,
+            pathGenerationMaxDy.value,
+            pathGenerationMaxDTheta.value)
 
     override val driveDataProvider = DiffDriveDataProvider(this)
 

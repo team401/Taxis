@@ -3,20 +3,19 @@ package org.team401.taxis.diffdrive.autotune
 import org.snakeskin.auto.steps.AutoStep
 import org.snakeskin.component.IDifferentialDrivetrain
 import org.snakeskin.component.ISensoredGearbox
-import org.snakeskin.units.AngularDistanceUnit
-import org.snakeskin.units.LinearDistanceUnit
-import org.snakeskin.units.measure.distance.angular.AngularDistanceMeasureCTREMagEncoder
-import org.snakeskin.units.measure.distance.linear.LinearDistanceMeasure
+import org.snakeskin.measure.MeasureUnitless
+import org.snakeskin.measure.distance.angular.AngularDistanceMeasureRadians
+import org.snakeskin.measure.distance.linear.LinearDistanceMeasureInches
 
 /**
  * @author Cameron Earle
  * @version 9/16/18
  */
-class TuneWheelRadius(val drive: IDifferentialDrivetrain<ISensoredGearbox>, val distance: LinearDistanceMeasure): AutoStep() {
+class TuneWheelRadius(val drive: IDifferentialDrivetrain<ISensoredGearbox>, val distance: LinearDistanceMeasureInches): AutoStep() {
     override fun entry(currentTime: Double) {
-        drive.left.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
-        drive.right.setPosition(AngularDistanceMeasureCTREMagEncoder(0.0))
-        println("Entering Wheel Radius tuning mode.  Please push the robot ${distance.value} ${distance.unit.toString().toLowerCase()}")
+        drive.left.setPosition(AngularDistanceMeasureRadians(0.0))
+        drive.right.setPosition(AngularDistanceMeasureRadians(0.0))
+        println("Entering Wheel Radius tuning mode.  Please push the robot $distance")
         println("Once at the distance, disable the robot to calculate the radius.")
     }
 
@@ -26,10 +25,10 @@ class TuneWheelRadius(val drive: IDifferentialDrivetrain<ISensoredGearbox>, val 
     }
 
     override fun exit(currentTime: Double) {
-        val wheelRadians = (drive.left.getPosition().toUnit(AngularDistanceUnit.Standard.RADIANS).value
-                + drive.right.getPosition().toUnit(AngularDistanceUnit.Standard.RADIANS).value) / 2.0
+        val wheelRadians = (drive.left.getPosition().value
+                + drive.right.getPosition().value) / 2.0
 
-        val distanceInches = distance.toUnit(LinearDistanceUnit.Standard.INCHES).value
+        val distanceInches = distance.value
 
         val radiusInches = distanceInches / wheelRadians
 

@@ -4,17 +4,16 @@ import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.networktables.NetworkTableInstance
 import org.snakeskin.auto.steps.AutoStep
 import edu.wpi.first.wpilibj.RobotController
-import org.snakeskin.units.Radians
-import org.snakeskin.units.RadiansPerSecond
 import org.snakeskin.component.ICTREGearbox
 import org.snakeskin.component.IDifferentialDrivetrain
+import org.snakeskin.component.ISmartGearbox
 
 /**
  * @author Cameron Earle
  * @version 12/4/2018
  *
  */
-class CollectDynamicsDataCTRE(val drivetrain: IDifferentialDrivetrain<ICTREGearbox>): AutoStep() {
+class CollectDynamicsDataCTRE(val drivetrain: IDifferentialDrivetrain<ISmartGearbox<*>>): AutoStep() {
     private val numberArray = Array<Number>(9) { 0 }
     private var priorAutospeed = 0.0
 
@@ -25,18 +24,18 @@ class CollectDynamicsDataCTRE(val drivetrain: IDifferentialDrivetrain<ICTREGearb
         drivetrain.left.setDeadband(0.0)
         drivetrain.right.setDeadband(0.0)
         drivetrain.both {
-            setNeutralMode(NeutralMode.Brake)
+            setNeutralMode(ISmartGearbox.CommonNeutralMode.BRAKE)
         }
 
         NetworkTableInstance.getDefault().setUpdateRate(0.010)
     }
 
     override fun action(currentTime: Double, lastTime: Double): Boolean {
-        val leftPosition = drivetrain.left.getPosition().toUnit(Radians).value
-        val leftRate = drivetrain.left.getVelocity().toUnit(RadiansPerSecond).value
+        val leftPosition = drivetrain.left.getPosition().value
+        val leftRate = drivetrain.left.getVelocity().value
 
-        val rightPosition = drivetrain.right.getPosition().toUnit(Radians).value
-        val rightRate = drivetrain.right.getVelocity().toUnit(RadiansPerSecond).value
+        val rightPosition = drivetrain.right.getPosition().value
+        val rightRate = drivetrain.right.getVelocity().value
 
         val battery = RobotController.getBatteryVoltage()
 
