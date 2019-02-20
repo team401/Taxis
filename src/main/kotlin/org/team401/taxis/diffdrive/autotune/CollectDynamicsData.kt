@@ -13,7 +13,7 @@ import org.snakeskin.component.ISmartGearbox
  * @version 12/4/2018
  *
  */
-class CollectDynamicsDataCTRE(val drivetrain: IDifferentialDrivetrain<ISmartGearbox<*>>): AutoStep() {
+class CollectDynamicsData(val drivetrain: IDifferentialDrivetrain<ISmartGearbox<*>>): AutoStep() {
     private val numberArray = Array<Number>(9) { 0 }
     private var priorAutospeed = 0.0
 
