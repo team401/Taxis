@@ -1,10 +1,8 @@
 package org.team401.taxis.diffdrive.autotune
 
-import com.ctre.phoenix.motorcontrol.NeutralMode
 import edu.wpi.first.networktables.NetworkTableInstance
-import org.snakeskin.auto.steps.AutoStep
 import edu.wpi.first.wpilibj.RobotController
-import org.snakeskin.component.ICTREGearbox
+import org.snakeskin.auto.steps.AutoStep
 import org.snakeskin.component.IDifferentialDrivetrain
 import org.snakeskin.component.ISmartGearbox
 
