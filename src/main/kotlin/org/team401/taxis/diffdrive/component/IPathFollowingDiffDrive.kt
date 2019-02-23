@@ -3,6 +3,7 @@ package org.team401.taxis.diffdrive.component
 import com.ctre.phoenix.sensors.PigeonIMU
 import org.snakeskin.component.IDifferentialDrivetrain
 import org.snakeskin.component.ISensoredGearbox
+import org.snakeskin.component.IYawSensoredDifferentialDrivetrain
 import org.snakeskin.hardware.Hardware
 import org.team401.taxis.diffdrive.control.DrivetrainPathManager
 import org.team401.taxis.diffdrive.control.FullStateDiffDriveModel
@@ -17,7 +18,7 @@ import org.team401.taxis.geometry.Rotation2d
  *
  * Pulls in the values from
  */
-interface IPathFollowingDiffDrive<out G: ISensoredGearbox>: IDifferentialDrivetrain<G> {
+interface IPathFollowingDiffDrive<out G: ISensoredGearbox>: IYawSensoredDifferentialDrivetrain<G> {
     val imu: PigeonIMU
     val fullStateModel: FullStateDiffDriveModel
     val driveState: DifferentialDriveState
