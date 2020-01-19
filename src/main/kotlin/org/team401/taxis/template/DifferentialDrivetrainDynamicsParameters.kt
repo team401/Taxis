@@ -5,7 +5,7 @@ package org.team401.taxis.template
  * @version 8/30/2018
  *
  */
-interface DriveDynamicsTemplate {
+interface DifferentialDrivetrainDynamicsParameters {
     /**
      * Voltage "intercept" gain
      */

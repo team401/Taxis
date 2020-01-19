@@ -1,7 +1,7 @@
 package org.team401.taxis.diffdrive.control;
 
 import org.team401.taxis.geometry.Pose2d;
-import org.team401.taxis.physics.DifferentialDrive;
+import org.team401.taxis.physics.DifferentialDrivetrainDynamics;
 import org.team401.taxis.util.Units;
 import org.team401.taxis.util.Util;
 
@@ -18,10 +18,10 @@ public class NonlinearFeedbackPathController implements PathController {
     private double kBeta;
     private double kZeta;
 
-    DifferentialDrive.ChassisState prev_velocity_ = new DifferentialDrive.ChassisState();
+    DifferentialDrivetrainDynamics.ChassisState prev_velocity_ = new DifferentialDrivetrainDynamics.ChassisState();
 
     @Override
-    public DrivetrainPathManager.Output update(DifferentialDrive.DriveDynamics dynamics, Pose2d current_state, Pose2d mError, DifferentialDrive mModel, double mDt) {
+    public DrivetrainPathManager.Output update(DifferentialDrivetrainDynamics.DriveDynamics dynamics, Pose2d current_state, Pose2d mError, DifferentialDrivetrainDynamics mModel, double mDt) {
         // Compute gain parameter.
         final double k = 2.0 * kZeta * Math.sqrt(kBeta * dynamics.chassis_velocity.linear * dynamics.chassis_velocity
                 .linear + dynamics.chassis_velocity.angular * dynamics.chassis_velocity.angular);
@@ -30,7 +30,7 @@ public class NonlinearFeedbackPathController implements PathController {
         final double angle_error_rads = mError.getRotation().getRadians();
         final double sin_x_over_x = Util.epsilonEquals(angle_error_rads, 0.0, 1E-2) ?
                 1.0 : mError.getRotation().sin() / angle_error_rads;
-        final DifferentialDrive.ChassisState adjusted_velocity = new DifferentialDrive.ChassisState(
+        final DifferentialDrivetrainDynamics.ChassisState adjusted_velocity = new DifferentialDrivetrainDynamics.ChassisState(
                 dynamics.chassis_velocity.linear * mError.getRotation().cos() +
                         k * Units.inches_to_meters(mError.getTranslation().x()),
                 dynamics.chassis_velocity.angular + k * angle_error_rads +
@@ -48,7 +48,7 @@ public class NonlinearFeedbackPathController implements PathController {
 
         prev_velocity_ = dynamics.chassis_velocity;
 
-        DifferentialDrive.WheelState feedforward_voltages = mModel.solveInverseDynamics(dynamics.chassis_velocity,
+        DifferentialDrivetrainDynamics.WheelState feedforward_voltages = mModel.solveInverseDynamics(dynamics.chassis_velocity,
                 dynamics.chassis_acceleration).voltage;
 
         return new DrivetrainPathManager.Output(dynamics.wheel_velocity.left, dynamics.wheel_velocity.right, dynamics.wheel_acceleration

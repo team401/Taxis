@@ -3,7 +3,7 @@ package org.team401.taxis.diffdrive.control;
 import org.team401.taxis.geometry.Pose2d;
 import org.team401.taxis.geometry.Pose2dWithCurvature;
 import org.team401.taxis.geometry.Rotation2d;
-import org.team401.taxis.physics.DifferentialDrive;
+import org.team401.taxis.physics.DifferentialDrivetrainDynamics;
 import org.team401.taxis.trajectory.*;
 import org.team401.taxis.trajectory.timing.DifferentialDriveDynamicsConstraint;
 import org.team401.taxis.trajectory.timing.TimedState;
@@ -23,7 +23,7 @@ import java.util.List;
  *
  */
 public class DrivetrainPathManager implements CSVWritable {
-    public DrivetrainPathManager(FullStateDiffDriveModel fullStateModel,
+    public DrivetrainPathManager(DifferentialDrivetrainModel fullStateModel,
                                  PathController controller,
                                  double maxDx,
                                  double maxDy,
@@ -35,7 +35,7 @@ public class DrivetrainPathManager implements CSVWritable {
         kMaxDTheta = maxDTheta;
     }
 
-    private final FullStateDiffDriveModel fullStateModel;
+    private final DifferentialDrivetrainModel fullStateModel;
     private PathController controller;
 
     private double kMaxDx;
@@ -96,7 +96,7 @@ public class DrivetrainPathManager implements CSVWritable {
         // Create the constraint that the robot must be able to traverse the trajectory without ever applying more
         // than the specified voltage.
         final DifferentialDriveDynamicsConstraint<Pose2dWithCurvature> drive_constraints = new
-                DifferentialDriveDynamicsConstraint<>(fullStateModel.getDrivetrainDynamicsModel(), max_voltage);
+                DifferentialDriveDynamicsConstraint<>(fullStateModel.getDriveDynamicsModel(), max_voltage);
         List<TimingConstraint<Pose2dWithCurvature>> all_constraints = new ArrayList<>();
         all_constraints.add(drive_constraints);
         if (constraints != null) {
@@ -150,13 +150,13 @@ public class DrivetrainPathManager implements CSVWritable {
             final double dcurvature_ds_m = Units.meters_to_inches(Units.meters_to_inches(mSetpoint.state()
                     .getDCurvatureDs()));
             final double acceleration_m = Units.inches_to_meters(mSetpoint.acceleration());
-            final DifferentialDrive.DriveDynamics dynamics = fullStateModel.getDrivetrainDynamicsModel().solveInverseDynamics(
-                    new DifferentialDrive.ChassisState(velocity_m, velocity_m * curvature_m),
-                    new DifferentialDrive.ChassisState(acceleration_m,
+            final DifferentialDrivetrainDynamics.DriveDynamics dynamics = fullStateModel.getDriveDynamicsModel().solveInverseDynamics(
+                    new DifferentialDrivetrainDynamics.ChassisState(velocity_m, velocity_m * curvature_m),
+                    new DifferentialDrivetrainDynamics.ChassisState(acceleration_m,
                             acceleration_m * curvature_m + velocity_m * velocity_m * dcurvature_ds_m));
             mError = current_state.inverse().transformBy(mSetpoint.state().getPose());
 
-            mOutput = controller.update(dynamics, current_state, mError, fullStateModel.getDrivetrainDynamicsModel(), mDt);
+            mOutput = controller.update(dynamics, current_state, mError, fullStateModel.getDriveDynamicsModel(), mDt);
         } else {
             // TODO Possibly switch to a pose stabilizing controller?
             mOutput = new Output();

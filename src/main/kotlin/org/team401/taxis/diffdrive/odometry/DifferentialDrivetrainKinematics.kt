@@ -4,9 +4,6 @@ import org.snakeskin.measure.distance.linear.LinearDistanceMeasureInches
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Rotation2d
 import org.team401.taxis.geometry.Twist2d
-import org.team401.taxis.template.DriveDynamicsTemplate
-import java.lang.ref.Reference
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @author Cameron Earle
@@ -14,11 +11,7 @@ import java.util.concurrent.atomic.AtomicReference
  *
  * A kinematics model for a robot
  */
-class Kinematics(private val wheelbase: LinearDistanceMeasureInches, private val trackScrubFactor: Double) {
-    companion object {
-        private const val kEpsilon = 1e-9
-    }
-
+class DifferentialDrivetrainKinematics(private val wheelbase: LinearDistanceMeasureInches, private val trackScrubFactor: Double) {
     fun forwardKinematics(leftWheelDelta: Double, rightWheelDelta: Double): Twist2d {
         val deltaRotation = (rightWheelDelta - leftWheelDelta) /
                 (wheelbase.value * trackScrubFactor)

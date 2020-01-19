@@ -12,7 +12,7 @@ import java.util.Arrays;
  * Dynamic model a differential drive robot.  Note: to simplify things, this math assumes the center of mass is
  * coincident with the kinematic center of rotation (e.g. midpoint of the center axle).
  */
-public class DifferentialDrive {
+public class DifferentialDrivetrainDynamics {
     // All units must be SI!
 
     // Equivalent mass when accelerating purely linearly, in kg.
@@ -43,13 +43,13 @@ public class DifferentialDrive {
     protected final DCMotorTransmission left_transmission_;
     protected final DCMotorTransmission right_transmission_;
 
-    public DifferentialDrive(final double mass,
-                             final double moi,
-                             final double angular_drag,
-                             final double wheel_radius,
-                             final double effective_wheelbase_radius,
-                             final DCMotorTransmission left_transmission,
-                             final DCMotorTransmission right_transmission) {
+    public DifferentialDrivetrainDynamics(final double mass,
+                                          final double moi,
+                                          final double angular_drag,
+                                          final double wheel_radius,
+                                          final double effective_wheelbase_radius,
+                                          final DCMotorTransmission left_transmission,
+                                          final DCMotorTransmission right_transmission) {
         mass_ = mass;
         moi_ = moi;
         angular_drag_ = angular_drag;
