@@ -1,4 +1,4 @@
-//File originally from FRC Team 254's 2018 Robot code
+//File originally from FRC Team 254's 2019 Robot code
 
 package org.team401.taxis.geometry;
 
@@ -12,7 +12,7 @@ import java.text.DecimalFormat;
 public class Translation2d implements ITranslation2d<Translation2d> {
     protected static final Translation2d kIdentity = new Translation2d();
 
-    public static final Translation2d identity() {
+    public static Translation2d identity() {
         return kIdentity;
     }
 
@@ -117,14 +117,14 @@ public class Translation2d implements ITranslation2d<Translation2d> {
 
     @Override
     public String toString() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return "(" + fmt.format(x_) + "," + fmt.format(y_) + ")";
+        final DecimalFormat format = new DecimalFormat("#0.000");
+        return "(" + format.format(x_) + "," + format.format(y_) + ")";
     }
 
     @Override
     public String toCSV() {
-        final DecimalFormat fmt = new DecimalFormat("#0.000");
-        return fmt.format(x_) + "," + fmt.format(y_);
+        final DecimalFormat format = new DecimalFormat("#0.000");
+        return format.format(x_) + "," + format.format(y_);
     }
 
     public static double dot(final Translation2d a, final Translation2d b) {
@@ -136,7 +136,7 @@ public class Translation2d implements ITranslation2d<Translation2d> {
         if (Double.isNaN(cos_angle)) {
             return new Rotation2d();
         }
-        return Rotation2d.fromRadians(Math.acos(Math.min(1.0, Math.max(cos_angle, -1.0))));
+        return Rotation2d.fromRadians(Math.acos(Util.limit(cos_angle, 1.0)));
     }
 
     public static double cross(final Translation2d a, final Translation2d b) {
@@ -150,7 +150,10 @@ public class Translation2d implements ITranslation2d<Translation2d> {
 
     @Override
     public boolean equals(final Object other) {
-        if (other == null || !(other instanceof Translation2d)) return false;
+        if (!(other instanceof Translation2d)) {
+            return false;
+        }
+
         return distance((Translation2d) other) < Util.kEpsilon;
     }
 

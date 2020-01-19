@@ -1,4 +1,4 @@
-//File originally from FRC Team 254's 2018 Robot code
+//File originally from FRC Team 254's 2019 Robot code
 
 package org.team401.taxis.geometry;
 
@@ -12,7 +12,7 @@ import org.team401.taxis.util.Util;
 public class Pose2d implements IPose2d<Pose2d> {
     protected static final Pose2d kIdentity = new Pose2d();
 
-    public static final Pose2d identity() {
+    public static Pose2d identity() {
         return kIdentity;
     }
 
@@ -201,7 +201,10 @@ public class Pose2d implements IPose2d<Pose2d> {
 
     @Override
     public boolean equals(final Object other) {
-        if (other == null || !(other instanceof Pose2d)) return false;
+        if (!(other instanceof Pose2d)) {
+            return false;
+        }
+
         return epsilonEquals((Pose2d) other, Util.kEpsilon);
     }
 

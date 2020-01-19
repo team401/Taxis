@@ -1,10 +1,11 @@
-//File originally from FRC Team 254's 2018 Robot code
+//File originally from FRC Team 254's 2019 Robot code
 
 package org.team401.taxis.geometry;
 
 import org.team401.taxis.util.Util;
 
 import java.text.DecimalFormat;
+
 
 /**
  * A movement along an arc at constant curvature and velocity. We can use ideas from "differential calculus" to create
@@ -15,7 +16,7 @@ import java.text.DecimalFormat;
 public class Twist2d {
     protected static final Twist2d kIdentity = new Twist2d(0.0, 0.0, 0.0);
 
-    public static final Twist2d identity() {
+    public static Twist2d identity() {
         return kIdentity;
     }
 
