@@ -9,40 +9,40 @@ import org.team401.taxis.template.DifferentialDrivetrainDynamicsParameters
 /**
  * Full model of a differential drivetrain.  Models both the dynamics and the kinematics of a differential drivetrain.
  */
-class DifferentialDrivetrainModel(geometry: DifferentialDrivetrainGeometry,
-                                  dynamics: DifferentialDrivetrainDynamicsParameters) {
+class DifferentialDrivetrainModel(val geometryConstants: DifferentialDrivetrainGeometry,
+                                  val dynamicsConstants: DifferentialDrivetrainDynamicsParameters) {
 
     /**
      * Model of the left side transmission of the robot drivetrain
      */
     val leftModel = DCMotorTransmission(
-            1.0 / dynamics.leftKv,
-            (geometry.wheelRadius.toMeters().value) *
-                    (geometry.wheelRadius.toMeters().value) *
-                    dynamics.inertialMass / (2.0 * dynamics.leftKa),
-            dynamics.leftKs
+            1.0 / dynamicsConstants.leftKv,
+            (geometryConstants.wheelRadius.toMeters().value) *
+                    (geometryConstants.wheelRadius.toMeters().value) *
+                    dynamicsConstants.inertialMass / (2.0 * dynamicsConstants.leftKa),
+            dynamicsConstants.leftKs
     )
 
     /**
      * Model of the right side transmission of the robot drivetrain
      */
     val rightModel = DCMotorTransmission(
-            1.0 / dynamics.rightKv,
-            (geometry.wheelRadius.toMeters().value) *
-                    (geometry.wheelRadius.toMeters().value) *
-                    dynamics.inertialMass / (2.0 * dynamics.rightKa),
-            dynamics.rightKs
+            1.0 / dynamicsConstants.rightKv,
+            (geometryConstants.wheelRadius.toMeters().value) *
+                    (geometryConstants.wheelRadius.toMeters().value) *
+                    dynamicsConstants.inertialMass / (2.0 * dynamicsConstants.rightKa),
+            dynamicsConstants.rightKs
     )
 
     /**
      * Model of the dynamics of the whole drivetrain
      */
     val driveDynamicsModel = DifferentialDrivetrainDynamics(
-            dynamics.inertialMass,
-            dynamics.momentOfInertia,
-            dynamics.angularDrag,
-            geometry.wheelRadius.toMeters().value,
-            geometry.wheelbase.toMeters().value / 2.0 * dynamics.trackScrubFactor,
+            dynamicsConstants.inertialMass,
+            dynamicsConstants.momentOfInertia,
+            dynamicsConstants.angularDrag,
+            geometryConstants.wheelRadius.toMeters().value,
+            geometryConstants.wheelbase.toMeters().value / 2.0 * dynamicsConstants.trackScrubFactor,
             leftModel,
             rightModel
     )
@@ -50,5 +50,5 @@ class DifferentialDrivetrainModel(geometry: DifferentialDrivetrainGeometry,
     /**
      * Model of the kinematics of the whole drivetrain
      */
-    val driveKinematicsModel = DifferentialDrivetrainKinematics(geometry.wheelbase, dynamics.trackScrubFactor)
+    val driveKinematicsModel = DifferentialDrivetrainKinematics(geometryConstants.wheelbase, dynamicsConstants.trackScrubFactor)
 }

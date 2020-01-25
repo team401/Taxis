@@ -35,6 +35,13 @@ public class DrivetrainPathManager implements CSVWritable {
         kMaxDTheta = maxDTheta;
     }
 
+    /**
+     * Creates a path manager with default values
+     */
+    public DrivetrainPathManager(DifferentialDrivetrainModel fullStateModel, PathController controller) {
+        this(fullStateModel, controller, 2.0, .25, Math.toRadians(5.0));
+    }
+
     private final DifferentialDrivetrainModel fullStateModel;
     private PathController controller;
 

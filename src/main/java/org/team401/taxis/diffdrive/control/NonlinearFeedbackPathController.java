@@ -15,6 +15,10 @@ public class NonlinearFeedbackPathController implements PathController {
         this.kZeta = kZeta;
     }
 
+    public NonlinearFeedbackPathController() {
+        this(2.0, .7);
+    }
+
     private double kBeta;
     private double kZeta;
 

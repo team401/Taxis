@@ -11,7 +11,6 @@ import org.snakeskin.template.DifferentialDrivetrainGeometry
 
 class MeasureTrackScrubFactorAuto(
         val drivetrain: IDifferentialDrivetrain,
-        val geometry: DifferentialDrivetrainGeometry,
         val numTurns: AngularDistanceMeasureRevolutions = 10.0.Revolutions,
         val turnPower: Double = 0.5): RobotAuto(0.01.Seconds, 0.0.Seconds) {
     private inner class Step: AutoStep() {
@@ -26,13 +25,13 @@ class MeasureTrackScrubFactorAuto(
             drivetrain.arcade(0.0, turnPower)
             val yaw = drivetrain.getYaw().toRevolutions().abs()
             if (yaw >= numTurns) {
-                val leftDistance = drivetrain.left.getAngularPosition().toLinearDistance(geometry.wheelRadius).abs()
-                val rightDistance = drivetrain.right.getAngularPosition().toLinearDistance(geometry.wheelRadius).abs()
+                val leftDistance = drivetrain.left.getAngularPosition().toLinearDistance(drivetrain.geometry.wheelRadius).abs()
+                val rightDistance = drivetrain.right.getAngularPosition().toLinearDistance(drivetrain.geometry.wheelRadius).abs()
 
                 val trackWidthInches = (leftDistance.value + rightDistance.value) / yaw.toRadians().value
 
                 println("Empirical Track Width (inches): $trackWidthInches")
-                println("Track Scrub Factor: ${trackWidthInches / geometry.wheelbase.value}")
+                println("Track Scrub Factor: ${trackWidthInches / drivetrain.geometry.wheelbase.value}")
 
                 drivetrain.stop()
                 return true
