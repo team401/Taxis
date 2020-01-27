@@ -8,8 +8,12 @@ import org.team401.taxis.trajectory.TrajectoryIterator
 import org.team401.taxis.trajectory.timing.TimedState
 import java.awt.*
 import java.lang.RuntimeException
+import java.text.DecimalFormat
 import java.util.concurrent.Executors
+import java.util.concurrent.ScheduledThreadPoolExecutor
+import java.util.concurrent.ThreadFactory
 import java.util.concurrent.TimeUnit
+import javax.swing.BorderFactory
 import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import kotlin.math.abs
@@ -46,7 +50,7 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         return TrajectoryStats(maxVel, time)
     }
 
-    private val executor = Executors.newSingleThreadScheduledExecutor()
+    private val executor = ScheduledThreadPoolExecutor(1, ThreadFactory { Thread().apply { isDaemon = true} })
 
     inner class Simulation(val rate: Double) {
         private val iterator = TrajectoryIterator(TimedView(trajectory))
@@ -59,11 +63,23 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         var done = false
 
         var latestState = Pose2d.identity()
+        var latestTime = 0.0
 
         fun start() {
+            reset()
             startTime = timeSeconds()
             //Run at 60 fps
             executor.scheduleAtFixedRate(::update, 0L, ((1000.0 / 60.0) * 1e6).roundToLong(), TimeUnit.NANOSECONDS)
+        }
+
+        fun reset() {
+            done = false
+            executor.queue.clear()
+            SwingUtilities.invokeLater {
+                latestTime = 0.0
+                latestState = trajectory.firstState.state().pose
+                repaint()
+            }
         }
 
         //Updates the simulation
@@ -76,6 +92,7 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
             val state = iterator.preview(time).state()
 
             SwingUtilities.invokeLater {
+                latestTime = time
                 latestState = state.state().pose
                 repaint()
             }
@@ -84,7 +101,7 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         }
     }
 
-    private var activeSimulation = Simulation(.25)
+    private var activeSimulation = Simulation(1.0)
 
     private val stats = computeStats()
     private val pathStroke = BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL)
@@ -122,6 +139,24 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         g.drawLine(frontRightHoriz, frontRightVert, backRightHoriz, backRightVert) //front right -> back right
         g.drawLine(backRightHoriz, backRightVert, backLeftHoriz, backLeftVert) //back right -> back left
         g.drawLine(backLeftHoriz, backLeftVert, frontLeftHoriz, frontLeftVert) //back left -> front left
+    }
+
+    private val fmt = DecimalFormat("0.####")
+    private val velGradient = GradientPaint(10f, 60f, Color.GREEN, 130f, 60f, Color.RED)
+
+    private fun drawText(g: Graphics2D) {
+        val time = fmt.format(activeSimulation.latestTime)
+        val state = activeSimulation.latestState
+
+        g.color = Color.BLACK
+        g.drawString("time: $time s", 10, 20)
+        g.drawString("pose: $state", 10, 40)
+
+        g.paint = velGradient
+        g.fillRect(10, 60, 120, 10)
+
+        g.color = Color.BLACK
+        g.drawString("${fmt.format(stats.maxVel)} in/s", 135, 70)
     }
     
     private fun drawTrajectory(g: Graphics2D) {
@@ -171,11 +206,20 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
         drawTrajectory(g2d)
         drawRobot(g2d)
+        drawText(g2d)
+    }
+
+    fun startSimulation() {
+        activeSimulation.start()
+    }
+
+    fun resetSimulation() {
+        activeSimulation.reset()
     }
 
     init {
         preferredSize = Dimension(ceil(fieldWidth * ppi).toInt(), ceil(fieldHeight * ppi).toInt())
-
-        activeSimulation.start()
+        border = BorderFactory.createLineBorder(Color.BLACK, 1)
+        resetSimulation()
     }
 }
