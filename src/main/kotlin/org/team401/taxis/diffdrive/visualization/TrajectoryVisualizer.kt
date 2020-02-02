@@ -19,8 +19,11 @@ import org.team401.taxis.trajectory.timing.TimingConstraint
 import java.awt.BorderLayout
 import java.awt.event.ComponentEvent
 import java.awt.event.ComponentListener
+import java.awt.event.WindowAdapter
+import java.awt.event.WindowEvent
 import javax.swing.*
 import javax.swing.plaf.basic.BasicSplitPaneUI
+import kotlin.system.exitProcess
 
 /**
  * Runs a trajectory visualizer on the given trajectory
@@ -33,6 +36,12 @@ class TrajectoryVisualizer(val trajectory: Trajectory<TimedState<Pose2dWithCurva
     private val frame = JFrame("Trajectory Visualization")
 
     fun start() {
+        frame.addWindowListener(object : WindowAdapter() {
+            override fun windowClosing(e: WindowEvent?) {
+                exitProcess(0) //Force the application to close (this is needed to stop the executor)
+            }
+        })
+
         val canvas = TrajectoryViewCanvas(2, 250.0, 250.0, trajectory, model)
 
         val buttonPanel = JPanel()

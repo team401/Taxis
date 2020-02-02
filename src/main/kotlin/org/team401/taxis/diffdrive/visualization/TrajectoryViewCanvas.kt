@@ -50,7 +50,7 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         return TrajectoryStats(maxVel, time)
     }
 
-    private val executor = ScheduledThreadPoolExecutor(1, ThreadFactory { Thread().apply { isDaemon = true} })
+    private val executor = ScheduledThreadPoolExecutor(1)
 
     inner class Simulation(val rate: Double) {
         private val iterator = TrajectoryIterator(TimedView(trajectory))
