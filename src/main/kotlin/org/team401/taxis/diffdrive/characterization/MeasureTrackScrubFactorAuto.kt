@@ -16,8 +16,8 @@ class MeasureTrackScrubFactorAuto(
     private inner class Step: AutoStep() {
         override fun entry(currentTime: TimeMeasureSeconds) {
             drivetrain.setYaw(0.0.Degrees)
-            drivetrain.left.setAngularPosition(0.0.Revolutions)
-            drivetrain.right.setAngularPosition(0.0.Revolutions)
+            drivetrain.left.setAngularPosition(0.0.Radians)
+            drivetrain.right.setAngularPosition(0.0.Radians)
             Thread.sleep(1000) //Wait some time for settings (specifically heading) to apply
         }
 
