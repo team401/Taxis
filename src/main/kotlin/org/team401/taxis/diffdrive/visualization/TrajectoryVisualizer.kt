@@ -11,6 +11,7 @@ import org.team401.taxis.diffdrive.control.FeedforwardOnlyPathController
 import org.team401.taxis.geometry.Pose2d
 import org.team401.taxis.geometry.Pose2dWithCurvature
 import org.team401.taxis.geometry.Rotation2d
+import org.team401.taxis.geometry.Translation2d
 import org.team401.taxis.template.DifferentialDrivetrainDynamicsParameters
 import org.team401.taxis.trajectory.Trajectory
 import org.team401.taxis.trajectory.timing.CentripetalAccelerationConstraint
@@ -28,11 +29,11 @@ import kotlin.system.exitProcess
 /**
  * Runs a trajectory visualizer on the given trajectory
  */
-fun Trajectory<TimedState<Pose2dWithCurvature>>.visualize(drivetrain: IModeledDifferentialDrivetrain) {
-    TrajectoryVisualizer(this, drivetrain.model).start()
+fun Trajectory<TimedState<Pose2dWithCurvature>>.visualize(drivetrain: IModeledDifferentialDrivetrain, fieldGeometry: List<Pair<Translation2d, Translation2d>>) {
+    TrajectoryVisualizer(this, drivetrain.model, fieldGeometry).start()
 }
 
-class TrajectoryVisualizer(val trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, val model: DifferentialDrivetrainModel) {
+class TrajectoryVisualizer(val trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, val model: DifferentialDrivetrainModel, val fieldGeometry: List<Pair<Translation2d, Translation2d>> = listOf()) {
     private val frame = JFrame("Trajectory Visualization")
 
     fun start() {
@@ -42,7 +43,7 @@ class TrajectoryVisualizer(val trajectory: Trajectory<TimedState<Pose2dWithCurva
             }
         })
 
-        val canvas = TrajectoryViewCanvas(2, 250.0, 250.0, trajectory, model)
+        val canvas = TrajectoryViewCanvas(2, 250.0, 250.0, trajectory, model, fieldGeometry)
 
         val buttonPanel = JPanel()
         buttonPanel.layout = BoxLayout(buttonPanel, BoxLayout.X_AXIS)

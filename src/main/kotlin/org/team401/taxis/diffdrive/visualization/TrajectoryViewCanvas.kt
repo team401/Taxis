@@ -21,7 +21,7 @@ import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
-class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight: Double, val trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, val model: DifferentialDrivetrainModel): JPanel(true) {
+class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight: Double, val trajectory: Trajectory<TimedState<Pose2dWithCurvature>>, val model: DifferentialDrivetrainModel, val fieldGeometry: List<Pair<Translation2d, Translation2d>>): JPanel(true) {
     private fun horizontalInchesToPixels(inches: Double): Int {
         return width - (ppi * inches).roundToInt()
     }
@@ -144,6 +144,20 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
     private val fmt = DecimalFormat("0.####")
     private val velGradient = GradientPaint(10f, 60f, Color.GREEN, 130f, 60f, Color.RED)
 
+    private fun drawField(g: Graphics2D) {
+        g.color = Color.RED
+
+        fieldGeometry.forEach {
+            line ->
+            val lineStartHoriz = horizontalInchesToPixels(line.first.y())
+            val lineStartVert = verticalInchesToPixels(line.first.x())
+            val lineEndHoriz = horizontalInchesToPixels(line.second.y())
+            val lineEndVert = verticalInchesToPixels(line.second.x())
+
+            g.drawLine(lineStartHoriz, lineStartVert, lineEndHoriz, lineEndVert)
+        }
+    }
+
     private fun drawText(g: Graphics2D) {
         val time = fmt.format(activeSimulation.latestTime)
         val state = activeSimulation.latestState
@@ -204,6 +218,7 @@ class TrajectoryViewCanvas(val ppi: Int, val fieldWidth: Double, val fieldHeight
         super.paintComponent(g)
         val g2d = g as Graphics2D
         g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        drawField(g2d)
         drawTrajectory(g2d)
         drawRobot(g2d)
         drawText(g2d)
